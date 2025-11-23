@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+      <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"></noscript>
+
+<link rel="preload" href="experiment-css/experiment.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="experiment-css/experiment.css"></noscript>
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://kit.fontawesome.com/5c12c7df97.js" crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <title>17 legends</title>
+
+  <link rel="icon" href="experiment-images/favicon.jpg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Agbalumo&family=Roboto&display=swap" rel="stylesheet">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="experiment-css/experiment.css" />
+  <script type="module" src="experiment-js/experiment.js" defer></script>
+</head>
+
+<body>
+  <div class="custom-video-container">
+    <video autoplay loop muted class="custom-background-video">
+        <source src="videos/background.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</div>
+<div class="overlay"></div> 
+
+<script>
+  // Function to check if a user is logged in
+  function checkUserLoggedIn() {
+      // Check if the userEmail is in localStorage (or use Firebase auth)
+      const userEmail = localStorage.getItem("userEmail");
+      if (userEmail) {
+          // Redirect to index.html if logged in
+          window.location.href = "index.html";
+      }
+  }
+
+  // Call the function to check login status
+  checkUserLoggedIn();
+</script>
+
+  <div class="container">
+  <style>
+    .navbar-container {
+        position: relative;
+    }
+    .navbar {
+        background-color: rgba(169, 169, 169, 0.5);
+        transition: background-color 0.3s ease;
+    }
+    .navbar.scrolled {
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+    .navbar-brand:hover,
+    .navbar-nav .nav-link:hover {
+        color: red;
+    }
+    .navbar-brand:visited,
+    .navbar-nav .nav-link:visited {
+        color: green;
+    }
+    .slide-left-view {
+        opacity: 0;
+        transform: translateX(-100%);
+        transition: transform 1s ease, opacity 1s ease;
+    }
+    .slide-left-view.animated {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    .slide-left-view:nth-child(1) {
+        transition-delay: 0.1s;
+    }
+    .slide-left-view:nth-child(2) {
+        transition-delay: 0.2s;
+    }
+    .slide-left-view:nth-child(3) {
+        transition-delay: 0.3s;
+    }
+    .slide-left-view:nth-child(4) {
+        transition-delay: 0.4s;
+    }
+    .slide-left-view:nth-child(5) {
+        transition-delay: 0.5s;
+    }
+    .user-info-overlay {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #000;
+        color: #fff;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1;
+        width: fit-content;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+    .user-info-container.show-overlay .user-info-overlay {
+        transform: translateX(-50%) translateY(10px);
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+    .slide-up-smartphone .user-info-overlay {
+        transform: translateX(-50%) translateY(-100%);
+        opacity: 1;
+        visibility: visible;
+    }
+    .slide-down-pc .user-info-overlay {
+        transform: translateX(-50%) translateY(10px);
+        opacity: 1;
+        visibility: visible;
+    }
+    .close-btn {
+        position: absolute;
+        top: -12px; /* Adjust this value to fine-tune the vertical position */
+        right: 3px; /* Adjust this value to fine-tune the horizontal position */
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1.5em;
+        color: red;
+    }
+</style>
+
+    </head>
+    <body>
+    
+      <div class="navbar-container">
+        <nav class="navbar navbar-expand-lg navbar fixed-top">
+            <div class="container-fluid">
+                <div class="logo-image slide-left-view">
+                    <img src="experiment-images/favicon.jpg" class="img-fluid rounded">
+                </div>
+                <a class="navbar-brand slide-left-view" href="index.html">17 Legends</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="sidebar offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel" style="background-color: rgba(0, 0, 0, 0.4);">
+                    <div class="offcanvas-header border-bottom">
+                        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Contents</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body d-flex flex-column flex-lg-row p-4 p-lg-0">
+                        <ul class="navbar-nav justify-content align-items-center fs-5 flex-grow-1 pe-3">
+                            <li class="nav-item mx-2 slide-left-view">
+                                <a class="nav-link" href="index.html">Home</a>
+                            </li>
+                            <li class="nav-item mx-2 slide-left-view">
+                                <a class="nav-link" href="1-index.html">About</a>
+                            </li>
+                        </ul>
+                        <div class="d-flex flex-column flex-lg-row justify-content-center align-items-center gap-3">
+                            <a href="experiment-login.html" class="text-green slide-left-view" id="login-link"><i class="fas fa-arrow-right-to-bracket"></i> Login</a>
+                            <a href="experiment-signup.html" class="rounded-button slide-left-view" id="signup-link"><i class="far fa-user"></i> Sign Up</a>
+                            <div class="user-info-container slide-left-view" id="user-info-container" style="display: none;">
+                                <a href="#" class="rounded-button" id="user-info-button"><i class="fas fa-user"></i> User Info</a>
+                                <div class="user-info-overlay">
+                                    <span class="close-btn" id="close-btn">&times;</span>
+                                    <p><strong>Username:</strong> <span id="username-display"></span></p>
+                                    <p><strong>Email:</strong> <span id="email-display"></span></p>
+                                </div>
+                            </div>
+                            <a href="#" class="rounded-button slide-left-view" id="logout-link" style="display: none;"><i class="fas fa-arrow-right-from-bracket"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const navbar = document.querySelector(".navbar");
+        const elementsToAnimate = document.querySelectorAll('.slide-left-view');
+        const loginLink = document.getElementById("login-link");
+        const signupLink = document.getElementById("signup-link");
+        const logoutLink = document.getElementById("logout-link");
+        const userInfoContainer = document.getElementById("user-info-container");
+        const userInfoButton = document.getElementById("user-info-button");
+        const usernameDisplay = document.getElementById("username-display");
+        const emailDisplay = document.getElementById("email-display");
+        const closeButton = document.getElementById("close-btn");
+        const userInfoOverlay = document.querySelector(".user-info-overlay");
+    
+        // Check user login status
+        function checkLoginStatus() {
+            const userEmail = localStorage.getItem("userEmail");
+            if (userEmail) {
+                const userName = userEmail.split("@")[0];
+                loginLink.style.display = "none";
+                signupLink.style.display = "none";
+                usernameDisplay.textContent = userName;
+                emailDisplay.textContent = userEmail;
+                userInfoContainer.style.display = "inline-block";
+                logoutLink.style.display = "inline-block";
+            } else {
+                loginLink.style.display = "inline-block";
+                signupLink.style.display = "inline-block";
+                userInfoContainer.style.display = "none";
+                logoutLink.style.display = "none";
+            }
+        }
+    
+        logoutLink.addEventListener("click", function () {
+              localStorage.removeItem("userEmail");
+              localStorage.removeItem("popupShown"); // Optionally reset popupShown
+      checkLoginStatus();
+      window.location.href="index.html";
+  });
+    
+        // Handle user info button click
+        userInfoButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            userInfoContainer.classList.toggle("show-overlay");
+    
+            // Toggle slide-up or slide-down animation based on device type
+            if (isMobileDevice()) {
+                userInfoOverlay.style.transform = "translateX(-50%) translateY(-100%)";
+            } else {
+                userInfoOverlay.style.transform = "translateX(-50%) translateY(10px)";
+            }
+    
+            userInfoOverlay.style.opacity = 1;
+            userInfoOverlay.style.visibility = "visible";
+            userInfoOverlay.style.pointerEvents = "auto";
+        });
+    
+        // Handle close button click
+        closeButton.addEventListener("click", function () {
+            userInfoOverlay.style.opacity = 0;
+            userInfoOverlay.style.visibility = "hidden";
+            userInfoOverlay.style.pointerEvents = "none";
+        });
+    
+        // Function to detect mobile device
+        function isMobileDevice() {
+            return window.innerWidth <= 768;
+        }
+    
+        // Run on page load
+        checkLoginStatus();
+    
+        window.addEventListener("scroll", function () {
+            if (window.scrollY > 50) {
+                navbar.classList.add("scrolled");
+            } else {
+                navbar.classList.remove("scrolled");
+            }
+        });
+    
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+    
+        elementsToAnimate.forEach(element => {
+            observer.observe(element);
+        });
+    });
+    </script>
+<br><br><br>
+
+  <!-- Main Container -->
+   
+  <div class="container d-flex justify-content-center align-items-center min-vh-100" style="background-color:  rgba(110, 110, 110, 0.685);">
+    <!-- Signup Container -->
+    
+    <div class="row border rounded-5 p-3 box-area" style="background-color: rgba(110, 110, 110, 0.685);">
+        <!-- Left Box -->
+      <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box">
+        <div class="featured-image">
+          <img src="experiment-images/favicon.jpg" class="img-fluid rounded" alt="Loading..." style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+        <small class="text-wrap text-center" style="width: 17rem;"><br>Join to our family</small>
+      </div>
+      <!-- Right Box -->
+      <div class="col-md-6 right-box">
+        <div class="row align-items-center">
+          <div class="header-text mb-4">
+            <h2>Hello</h2>
+            We are happy to have you.
+          </div>
+          <div class="input-group mb-3">
+            <input type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Enter Your Email Address" id="email">
+          </div>
+          <div class="input-group mb-3">
+            <input type="password" class="form-control form-control-lg bg-light fs-6" placeholder="Enter 6 characters pass" id="password1">
+            <span class="input-group-text">
+              <i class="fa-solid fa-eye" id="eye1" onclick="toggle1()"></i>
+            </span>
+          </div>
+          <script>
+            var state1 = false;
+            function toggle1() {
+              if (state1) {
+                document.getElementById("password1").setAttribute("type", "password");
+                document.getElementById("eye1").style.color = '#7a797e';
+                state1 = false;
+              } else {
+                document.getElementById("password1").setAttribute("type", "text");
+                document.getElementById("eye1").style.color = '#5887ef';
+                state1 = true;
+              }
+            }
+          </script>
+          <div class="input-group mb-3">
+            <input type="password" class="form-control form-control-lg bg-light fs-6" placeholder="Confirm Your Password" id="password2">
+            <span class="input-group-text">
+              <i class="fa-solid fa-eye" id="eye2" onclick="toggle2()"></i>
+            </span>
+          </div>
+          <script>
+            var state2 = false;
+            function toggle2() {
+              if (state2) {
+                document.getElementById("password2").setAttribute("type", "password");
+                document.getElementById("eye2").style.color = '#7a797e';
+                state2 = false;
+              } else {
+                document.getElementById("password2").setAttribute("type", "text");
+                document.getElementById("eye2").style.color = '#5887ef';
+                state2 = true;
+              }
+            }
+          </script>
+          <div class="input-group mb-5 d-flex justify-content-between">
+            By signing up, you are agreeing to our <a target="_blank" href="privacy policy.pdf">privacy policy and terms.</a><br><small>Already have an account? <a href="experiment-login.html">Log in</a></small>
+            </div>
+          </div>
+          <div class="input-group mb-3">
+            <button class="btn btn-lg btn-primary w-100 fs-6" id="signup">Sign Up</button>
+          </div>
+          <div style="text-align: center" id="or">
+            <p>or</p>
+          </div>
+          <div class="input-group mb-3">
+            <button onclick="loginWithGoogle(event)" class="btn btn-lg btn-light w-100 fs-6" id="google-signin">
+              <img src="experiment-images/google.png" style="width: 20px" class="me-2" alt="Google Icon">Sign Up With Google
+            </button>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+<script src="firebase-config.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
+    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, getDocs, query, collection, where, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    const db = getFirestore(app);
+    initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LdpeVYqAAAAAA2i5yEtBFiVV3cBS9WCAin8LK3w'),
+  isTokenAutoRefreshEnabled: true
+});
+
+// ✅ SIMPLE FIRESTORE CLEANUP (This works!)
+async function checkAndCleanExpiredUsers() {
+    const user = auth.currentUser;
+    
+    if (user && !user.emailVerified) {
+        const creationTime = user.metadata.creationTime;
+        const accountAge = Date.now() - new Date(creationTime).getTime();
+        const maxAge = 10 * 60 * 1000; // 10 minutes
+        
+        console.log(`⏰ Checking unverified user: ${Math.round(accountAge/1000)}s old`);
+        
+        if (accountAge > maxAge) {
+            console.log('🚨 Cleaning up expired unverified user from Firestore');
+            await performFirestoreCleanup(user);
+        }
+    }
+}
+
+// ✅ ONLY CLEARS FIRESTORE (No auth deletion attempts)
+async function performFirestoreCleanup(user) {
+    try {
+        // Delete from Firestore users collection
+        const userDocRef = doc(db, "users", user.uid);
+        await deleteDoc(userDocRef).catch(() => {});
+        console.log('🗑️ Removed user data from Firestore');
+        
+        // Delete from Firestore votes collection
+        const voteDocRef = doc(db, "votes", user.uid);
+        await deleteDoc(voteDocRef).catch(() => {});
+        console.log('🗑️ Removed vote data from Firestore');
+        
+        // Sign out user
+        await signOut(auth);
+        console.log('👋 Signed out user');
+        
+        // Clear localStorage
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("popupShown");
+        
+        // Show message and redirect
+        alert('Please verify your email within 10 minutes. Your data has been cleared.');
+        window.location.href = "index.html";
+        
+    } catch (error) {
+        console.error('Error in Firestore cleanup:', error);
+        // Still try to sign out
+        await signOut(auth);
+        window.location.href = "index.html";
+    }
+}
+
+// ✅ START THE CLEANUP SYSTEM
+// Run check when auth state changes
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        checkAndCleanExpiredUsers();
+    }
+});
+
+// Run check periodically
+setInterval(() => {
+    if (auth.currentUser) {
+        checkAndCleanExpiredUsers();
+    }
+}, 60 * 1000); // Check every minute
+
+// Initial check after page load
+setTimeout(() => {
+    if (auth.currentUser) {
+        checkAndCleanExpiredUsers();
+    }
+}, 3000);
+
+    // Function to validate email format
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    // Function to sign up user
+    async function signUpUser() {
+        const email = document.getElementById('email').value;
+        const password1 = document.getElementById('password1').value;
+        const password2 = document.getElementById('password2').value;
+
+        if (email.trim() === "" || password1.trim() === "" || password2.trim() === "") {
+            alert("Please enter both email and passwords.");
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            alert("Please enter a valid email address.");
+            return;
+        }
+
+        if (password1 !== password2) {
+            alert("Passwords do not match.");
+            return;
+        }
+
+        if (password1.length < 6) {
+            alert("Please enter a password with at least 6 characters.");
+            return;
+        }
+
+        try {
+            // Create user
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password1);
+            const user = userCredential.user;
+
+            // Store user info in Firestore with sign-in method
+            await setDoc(doc(db, "users", user.uid), { 
+                email: user.email, 
+                signupTime: Date.now(), 
+                emailVerified: false, 
+                signInMethod: 'email', 
+                userId: user.uid // This helps link the document to the authenticated user
+            });
+
+            await sendEmailVerification(user);
+            alert("Verification email sent.");
+            checkEmailVerifiedPeriodically(); // Start checking for email verification
+        } catch (error) {
+            alert("Error during signup: " + error.message);
+        }
+    }
+
+            // Function to handle Google Sign-In
+        async function loginWithGoogle(event) {
+            event.preventDefault();
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                localStorage.setItem("userEmail", user.email);
+    
+                const userDoc = doc(db, "users", user.uid);
+                const userSnapshot = await getDoc(userDoc);
+    
+                if (userSnapshot.exists()) {
+                    window.location.href = "index.html";
+                } else {
+                    await setDoc(userDoc, { 
+                        email: user.email, 
+                        signupTime: Date.now(), 
+                        emailVerified: true, 
+                        signInMethod: 'google', 
+                        userId: user.uid 
+                    });
+                    window.location.href = "index.html";
+                }
+            } catch (error) {
+                alert("Failed to sign up with Google: " + error.message);
+            }
+        }
+
+    // Periodic check for email verification
+    function checkEmailVerifiedPeriodically() {
+        const user = auth.currentUser;
+
+        const intervalId = setInterval(async () => {
+            await user.reload(); // Refresh user data
+            if (user.emailVerified) {
+                clearInterval(intervalId); // Stop the interval
+
+                // Update Firestore to set emailVerified to true
+                await setDoc(doc(db, "users", user.uid), { 
+                    email: user.email, 
+                    signupTime: Date.now(), 
+                    emailVerified: true 
+                }, { merge: true });
+
+                // Save email to local storage and redirect
+                localStorage.setItem("userEmail", user.email);
+                window.location.href = "index.html";
+            }
+        }, 3000); // Check every 3 seconds
+    }
+
+    // Attach event listeners
+    document.getElementById('signup').addEventListener('click', signUpUser);
+    document.getElementById('google-signin').addEventListener("click", loginWithGoogle);
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+html, body {
+  height: 100%;       /* Full height */
+  margin: 0;          /* Remove default margin */
+}
+
+.container {
+  flex: 1; /* Take up remaining space so footer is pushed down */
+}
+
+h3 {
+  font-size: 24px;
+  font-family: 'Agbalumo', serif;
+  color: #FFD700;
+}
+
+h2 {
+  font-family: 'Agbalumo', serif;
+  color: #FFD700;
+}
+
+p {
+  color: #ffffff;
+}
+
+ol {
+  color: #faf8f8;
+}
+
+img {
+  width: 160px;
+  height: auto;
+}
+
+.nav-link {
+  width: 84px;
+}
+
+a:link {
+  color: #7f2fff;
+}
+
+a:visited {
+  color: #ff0000;
+}
+
+a:hover {
+  color: rgb(0, 255, 21);
+}
+
+footer {
+  background-color: #222222;
+}
+
+.profile-photo {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+    border-radius: 100%;
+    overflow: hidden;
+}
+
+.social-links ul {
+    padding: 0px;
+    margin: 0px;
+}
+
+.social-links ul li {
+    list-style: none;
+    display: inline-block;
+    margin: 2px 0px;
+    font-size: 20px;
+}
+
+.social-links ul li a {
+    color: #f7d309;
+    padding: 2px 6px;
+    border-radius: 5px;
+}
+
+.social-links ul li:hover a {
+    background-color: #07ec67;
+    color: #0d30f5;
+}
+
+.logo-image {
+  width: auto;
+  height: auto;
+  max-height: 50px;
+  max-width: 50px;
+}
+
+@media(max-width: 991px) {
+  .sidebar {
+    backdrop-filter: blur(10px);
+  }
+}
+
+.navbar-toggler {
+  background-color: crimson;
+}
+
+.btn-close {
+  background-color: crimson;
+}
+
+.offcanvas-title {
+  color: #FFD700;
+}
+
+.box-area {
+  width: 930px;
+}
+
+small {
+  color: rgb(255, 8, 8);
+}
+
+::placeholder {
+  font-size: 16px;
+}
+
+.featured-image {
+  height: auto;
+  width: auto;
+}
+
+
+body{
+  font-family: 'Agbalumo', serif;
+  display: flex;
+  flex-direction: column; /* Stack header/content/footer vertically */
+}
+
+.custom-video-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.custom-background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3); /* Semi-transparent overlay */
+  z-index: 0; /* Positioned between the video and the content */
+}
+
+header {
+  position: relative;
+  z-index: 1;
+}
+
+.right-box {
+  padding: 40px 30px 40px 40px;
+}
+
+@media only screen and (max-width: 768px) {
+  .box-area {
+    margin: 0 10px;
+  }
+  .left-box {
+    height: auto;
+  }
+  .right-box {
+    padding: 20px;
+  }
+}
+
+#or p{
+  color: #07ec67;
+}
+
+/* Initial state of the login box */
+.box-area {
+  transform: translateX(-100%);
+  animation: slideInLoginBox 3s ease forwards; /* Unique animation name */
+}
+
+/* Slide-in animation for login box */
+@keyframes slideInLoginBox {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Styles for the rounded button */
+.rounded-button {
+  background-color: #1100fd;
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px; /* Adjust the border-radius to make the button rounded */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover animation */
+.rounded-button:hover {
+  background-color: #0a00b3; /* Change background color on hover */
+  transform: translateY(-2px); /* Move the button up slightly */
+}
+
+/* Define the animation */
+@keyframes logoAnimation {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Apply the animation to the logo image */
+.logo-image img {
+  animation: logoAnimation 2s infinite alternate; /* Apply the animation infinitely in alternate direction */
+}
+
+.animated-text {
+  opacity: 0;
+  animation: fadeIn 3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.featured-image img {
+  opacity: 0;
+  transform: scale(0.8);
+  animation: zoomIn 6s ease-in-out forwards;
+}
+
+@keyframes zoomIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+
+

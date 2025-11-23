@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+      <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"></noscript>
+
+<link rel="preload" href="experiment-css/experiment.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="experiment-css/experiment.css"></noscript>
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://kit.fontawesome.com/5c12c7df97.js" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="experiment-js/experiment.js"></script>
+
+ <title>About the website</title>
+
+     <link rel="icon" href="experiment-images/favicon.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Agbalumo&family=Roboto&display=swap" rel="stylesheet">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+<link rel="stylesheet" href="experiment-css/experiment.css" />
+ </head>
+ <body>
+    <div class="custom-video-container">
+        <video autoplay loop muted class="custom-background-video">
+            <source src="videos/background.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <div class="overlay"></div> 
+   <div class="container">
+    <style>
+      .navbar-container {
+          position: relative;
+      }
+      .navbar {
+          background-color: rgba(169, 169, 169, 0.5);
+          transition: background-color 0.3s ease;
+      }
+      .navbar.scrolled {
+          background-color: rgba(0, 0, 0, 0.9);
+      }
+      .navbar-brand:hover,
+      .navbar-nav .nav-link:hover {
+          color: red;
+      }
+      .navbar-brand:visited,
+      .navbar-nav .nav-link:visited {
+          color: green;
+      }
+      .slide-left-view {
+          opacity: 0;
+          transform: translateX(-100%);
+          transition: transform 1s ease, opacity 1s ease;
+      }
+      .slide-left-view.animated {
+          opacity: 1;
+          transform: translateX(0);
+      }
+      .slide-left-view:nth-child(1) {
+          transition-delay: 0.1s;
+      }
+      .slide-left-view:nth-child(2) {
+          transition-delay: 0.2s;
+      }
+      .slide-left-view:nth-child(3) {
+          transition-delay: 0.3s;
+      }
+      .slide-left-view:nth-child(4) {
+          transition-delay: 0.4s;
+      }
+      .slide-left-view:nth-child(5) {
+          transition-delay: 0.5s;
+      }
+      .user-info-overlay {
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: #000;
+          color: #fff;
+          padding: 15px;
+          border-radius: 5px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          z-index: 1;
+          width: fit-content;
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+          transition: transform 0.5s ease, opacity 0.5s ease;
+      }
+      .user-info-container.show-overlay .user-info-overlay {
+          transform: translateX(-50%) translateY(10px);
+          opacity: 1;
+          visibility: visible;
+          pointer-events: auto;
+      }
+      .slide-up-smartphone .user-info-overlay {
+          transform: translateX(-50%) translateY(-100%);
+          opacity: 1;
+          visibility: visible;
+      }
+      .slide-down-pc .user-info-overlay {
+          transform: translateX(-50%) translateY(10px);
+          opacity: 1;
+          visibility: visible;
+      }
+      .close-btn {
+          position: absolute;
+          top: -12px; /* Adjust this value to fine-tune the vertical position */
+          right: 3px; /* Adjust this value to fine-tune the horizontal position */
+          cursor: pointer;
+          font-weight: bold;
+          font-size: 1.5em;
+          color: red;
+      }
+  </style>
+  
+      </head>
+      <body>
+      
+        <div class="navbar-container">
+            <nav class="navbar navbar-expand-lg navbar fixed-top">
+                <div class="container-fluid">
+                    <div class="logo-image slide-left-view">
+                        <img src="experiment-images/favicon.jpg" class="img-fluid rounded">
+                    </div>
+                    <a class="navbar-brand slide-left-view" href="index.html">17 Legends</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="sidebar offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel" style="background-color: rgba(0, 0, 0, 0.4);">
+                        <div class="offcanvas-header border-bottom">
+                            <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Contents</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body d-flex flex-column flex-lg-row p-4 p-lg-0">
+                            <ul class="navbar-nav justify-content align-items-center fs-5 flex-grow-1 pe-3">
+                                <li class="nav-item mx-2 slide-left-view">
+                                    <a class="nav-link" href="index.html">Home</a>
+                                </li>
+                                <li class="nav-item mx-2 slide-left-view">
+                                    <a class="nav-link" href="1-index.html">About</a>
+                                </li>
+                            </ul>
+                            <div class="d-flex flex-column flex-lg-row justify-content-center align-items-center gap-3">
+                                <a href="experiment-login.html" class="text-green slide-left-view" id="login-link"><i class="fas fa-arrow-right-to-bracket"></i> Login</a>
+                                <a href="experiment-signup.html" class="rounded-button slide-left-view" id="signup-link"><i class="far fa-user"></i> Sign Up</a>
+                                <div class="user-info-container slide-left-view" id="user-info-container" style="display: none;">
+                                    <a href="#" class="rounded-button" id="user-info-button"><i class="fas fa-user"></i> User Info</a>
+                                    <div class="user-info-overlay">
+                                        <span class="close-btn" id="close-btn">&times;</span>
+                                        <p><strong>Username:</strong> <span id="username-display"></span></p>
+                                        <p><strong>Email:</strong> <span id="email-display"></span></p>
+                                    </div>
+                                </div>
+                                <a href="#" class="rounded-button slide-left-view" id="logout-link" style="display: none;"><i class="fas fa-arrow-right-from-bracket"></i> Logout</a>
+                                <a href="#" class="rounded-button slide-left-view" id="delete-account-link" style="display: none;"><i class="fas fa-trash"></i> Delete Account</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+<script src="firebase-config.js"></script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, deleteUser, signOut } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
+import { getFirestore, doc, deleteDoc, collection, addDoc, onSnapshot, query,setDoc,updateDoc,getDocs,where, getDoc } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+const db = getFirestore(app);
+        initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LdpeVYqAAAAAA2i5yEtBFiVV3cBS9WCAin8LK3w'),
+  isTokenAutoRefreshEnabled: true
+});
+
+// Update the global Firebase functions
+window.firebaseApp = {
+    auth: auth,
+    db: db,
+    collection: collection,
+    doc: doc,
+    setDoc: setDoc,
+    updateDoc: updateDoc,
+    addDoc: addDoc,
+    getDocs: getDocs,
+    getDoc: getDoc, // Add this line
+    onSnapshot: onSnapshot,
+    query: query,
+    where: where
+};
+
+// 🔥 SIMPLE TAMPER PROTECTION (No other changes needed)
+(function() {
+    const originalGetItem = localStorage.getItem;
+    const originalSetItem = localStorage.setItem;
+    
+    localStorage.getItem = function(key) {
+        const value = originalGetItem.call(this, key);
+        
+        // Only validate userEmail - everything else works normally
+        if (key === 'userEmail' && value) {
+            const user = auth.currentUser;
+            
+            // If Firebase user doesn't match localStorage, clear tampered data
+            if (!user || user.email !== value) {
+                console.warn('Tampered localStorage detected - clearing invalid data');
+                this.removeItem('userEmail');
+                this.removeItem('popupShown');
+                return null;
+            }
+        }
+        
+        return value;
+    };
+    
+    console.log("🔒 Tamper protection activated");
+})();
+
+// ✅ SIMPLE FIRESTORE CLEANUP (This works!)
+async function checkAndCleanExpiredUsers() {
+    const user = auth.currentUser;
+    
+    if (user && !user.emailVerified) {
+        const creationTime = user.metadata.creationTime;
+        const accountAge = Date.now() - new Date(creationTime).getTime();
+        const maxAge = 10 * 60 * 1000; // 10 minutes
+        
+        console.log(`⏰ Checking unverified user: ${Math.round(accountAge/1000)}s old`);
+        
+        if (accountAge > maxAge) {
+            console.log('🚨 Cleaning up expired unverified user from Firestore');
+            await performFirestoreCleanup(user);
+        }
+    }
+}
+
+// ✅ ONLY CLEARS FIRESTORE (No auth deletion attempts)
+async function performFirestoreCleanup(user) {
+    try {
+        // Delete from Firestore users collection
+        const userDocRef = doc(db, "users", user.uid);
+        await deleteDoc(userDocRef).catch(() => {});
+        console.log('🗑️ Removed user data from Firestore');
+        
+        // Delete from Firestore votes collection
+        const voteDocRef = doc(db, "votes", user.uid);
+        await deleteDoc(voteDocRef).catch(() => {});
+        console.log('🗑️ Removed vote data from Firestore');
+        
+        // Sign out user
+        await signOut(auth);
+        console.log('👋 Signed out user');
+        
+        // Clear localStorage
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("popupShown");
+        
+        // Show message and redirect
+        alert('Please verify your email within 10 minutes. Your data has been cleared.');
+        window.location.href = "index.html";
+        
+    } catch (error) {
+        console.error('Error in Firestore cleanup:', error);
+        // Still try to sign out
+        await signOut(auth);
+        window.location.href = "index.html";
+    }
+}
+
+// ✅ START THE CLEANUP SYSTEM
+// Run check when auth state changes
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        checkAndCleanExpiredUsers();
+    }
+});
+
+// Run check periodically
+setInterval(() => {
+    if (auth.currentUser) {
+        checkAndCleanExpiredUsers();
+    }
+}, 60 * 1000); // Check every minute
+
+// Initial check after page load
+setTimeout(() => {
+    if (auth.currentUser) {
+        checkAndCleanExpiredUsers();
+    }
+}, 3000);
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const navbar = document.querySelector(".navbar");
+            const elementsToAnimate = document.querySelectorAll('.slide-left-view');
+            const loginLink = document.getElementById("login-link");
+            const signupLink = document.getElementById("signup-link");
+            const logoutLink = document.getElementById("logout-link");
+            const userInfoContainer = document.getElementById("user-info-container");
+            const userInfoButton = document.getElementById("user-info-button");
+            const usernameDisplay = document.getElementById("username-display");
+            const emailDisplay = document.getElementById("email-display");
+            const closeButton = document.getElementById("close-btn");
+            const userInfoOverlay = document.querySelector(".user-info-overlay");
+            const deleteAccountLink = document.getElementById("delete-account-link");
+// Check user login status
+function checkLoginStatus() {
+    const userEmail = localStorage.getItem("userEmail");
+    if (userEmail) {
+        const userName = userEmail.split("@")[0];
+        loginLink.style.display = "none";
+        signupLink.style.display = "none";
+        usernameDisplay.textContent = userName;
+        emailDisplay.textContent = userEmail;
+        userInfoContainer.style.display = "inline-block";
+        logoutLink.style.display = "inline-block";
+        deleteAccountLink.style.display = "inline-block";
+
+    } else {
+        loginLink.style.display = "inline-block";
+        signupLink.style.display = "inline-block";
+        userInfoContainer.style.display = "none";
+        logoutLink.style.display = "none";
+        deleteAccountLink.style.display = "none";
+
+    }
+}
+    
+            logoutLink.addEventListener("click", function () {
+                signOut(auth).then(() => {
+                    localStorage.removeItem("userEmail");
+                    localStorage.removeItem("popupShown"); // Reset popupShown to allow popup on next visit
+                    checkLoginStatus(); // Update UI after logout
+                    window.location.href = "index.html"; // Redirect to login page
+                }).catch((error) => {
+                    console.error("Error signing out:", error);
+                });
+            });
+    
+            // Handle user info button click
+            userInfoButton.addEventListener("click", function (event) {
+                event.preventDefault();
+                userInfoContainer.classList.toggle("show-overlay");
+    
+                // Toggle slide-up or slide-down animation based on device type
+                if (isMobileDevice()) {
+                    userInfoOverlay.style.transform = "translateX(-50%) translateY(-100%)";
+                } else {
+                    userInfoOverlay.style.transform = "translateX(-50%) translateY(10px)";
+                }
+    
+                userInfoOverlay.style.opacity = 1;
+                userInfoOverlay.style.visibility = "visible";
+                userInfoOverlay.style.pointerEvents = "auto";
+            });
+    
+            // Handle close button click
+            closeButton.addEventListener("click", function () {
+                userInfoOverlay.style.opacity = 0;
+                userInfoOverlay.style.visibility = "hidden";
+                userInfoOverlay.style.pointerEvents = "none";
+            });
+    
+            // Function to detect mobile device
+            function isMobileDevice() {
+                return window.innerWidth <= 768;
+            }
+    
+            // Handle Delete Account button click
+            if (deleteAccountLink) {
+                deleteAccountLink.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    const confirmation = confirm("Are you sure you want to delete your account? This action cannot be undone.");
+                    if (confirmation) {
+                        reauthenticateAndDeleteAccount();
+                    }
+                });
+    
+                // Function to reauthenticate and delete account
+                function reauthenticateAndDeleteAccount() {
+                    const user = auth.currentUser;
+    
+                    if (user) {
+                        const providerId = user.providerData[0].providerId;
+    
+                        if (providerId === 'password') {
+                            // For email/password users
+                            const email = user.email;
+                            const password = prompt("Please enter your password to delete your account:");
+    
+                            if (password) {
+                                const credential = EmailAuthProvider.credential(email, password);
+                                reauthenticateWithCredential(user, credential).then(() => {
+                                    deleteUserAndFirestore(user);
+                                }).catch(function (error) {
+                                    console.error("Re-authentication failed:", error);
+                                    alert("Re-authentication failed. Please try again.");
+                                });
+                            }
+                        } else if (providerId === 'google.com') {
+                            // For Google users
+                            reauthenticateWithPopup(user, provider).then(() => {
+                                deleteUserAndFirestore(user);
+                            }).catch(function (error) {
+                                console.error("Re-authentication failed:", error);
+                                alert("Re-authentication failed. Please try again.");
+                            });
+                        }
+                    } else {
+                        alert("No user is currently logged in.");
+                    }
+                }
+    
+async function deleteUserAndFirestore(user) {
+    try {
+        const userDocRef = doc(db, "users", user.uid);
+        const voteDocRef = doc(db, "votes", user.uid);
+
+        console.log("Starting account deletion process for user:", user.uid);
+
+        // First, try to delete the vote document if it exists
+        try {
+            // Check if vote exists first using the imported getDoc
+            const voteDoc = await getDoc(voteDocRef);
+            if (voteDoc.exists()) {
+                await deleteDoc(voteDocRef);
+                console.log("User vote deleted from Firestore.");
+            } else {
+                console.log("No vote found to delete - user hadn't voted yet");
+            }
+        } catch (voteError) {
+            // If we can't delete the vote (permission denied or not found), just log and continue
+            console.log("Vote deletion issue (may not exist or permission denied):", voteError);
+            // Don't throw - continue with user deletion
+        }
+
+        // Then delete the user document
+        try {
+            await deleteDoc(userDocRef);
+            console.log("User document deleted from Firestore.");
+        } catch (userDocError) {
+            console.log("User document deletion issue (may not exist):", userDocError);
+            // Continue with account deletion even if user doc doesn't exist
+        }
+
+        // Finally delete the Firebase Authentication user
+        await deleteUser(user);
+        
+        alert("Account deleted successfully.");
+        localStorage.removeItem("userEmail");
+        checkLoginStatus();
+        window.location.href = "index.html";
+        
+    } catch (error) {
+        console.error("Error deleting user data:", error);
+        if (error.code === 'permission-denied') {
+            alert("Permission denied. Please make sure you're logged in and try again.");
+        } else if (error.code === 'auth/requires-recent-login') {
+            alert("Please log in again to delete your account.");
+        } else {
+            alert("Error deleting account: " + error.message);
+        }
+    }
+}
+            }
+            // Run on page load
+            checkLoginStatus();
+    
+            window.addEventListener("scroll", function () {
+                if (window.scrollY > 50) {
+                    navbar.classList.add("scrolled");
+                } else {
+                    navbar.classList.remove("scrolled");
+                }
+            });
+    
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animated');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+    
+            elementsToAnimate.forEach(element => {
+                observer.observe(element);
+            });
+        });
+
+                // Periodic check for email verification
+function checkEmailVerifiedPeriodically() {
+    const user = auth.currentUser;
+    
+    if (!user) return;
+
+    const intervalId = setInterval(async () => {
+        try {
+            await user.reload(); // Refresh user data
+            if (user.emailVerified) {
+                clearInterval(intervalId); // Stop the interval
+
+                // Update Firestore to set emailVerified to true
+                await setDoc(doc(db, "users", user.uid), { 
+                    email: user.email, 
+                    emailVerified: true 
+                }, { merge: true });
+
+                // Save email to local storage and redirect
+                localStorage.setItem("userEmail", user.email);
+                window.location.href = "index.html";
+            }
+        } catch (error) {
+            console.error("Error checking email verification:", error);
+            clearInterval(intervalId);
+        }
+    }, 3000); // Check every 3 seconds
+}
+
+// Automatically check for email verification
+async function autoCheckEmailVerification() {
+    const user = auth.currentUser;
+    if (user) {
+        try {
+            await user.reload();
+            if (!user.emailVerified) {
+                console.log("User not verified, starting periodic check");
+                checkEmailVerifiedPeriodically();
+            } else {
+                console.log("User already verified, redirecting");
+                localStorage.setItem("userEmail", user.email);
+                window.location.href = "index.html";
+            }
+        } catch (error) {
+            console.error("Error in auto check:", error);
+        }
+    }
+}
+
+// Use Firebase auth state observer instead of DOMContentLoaded
+auth.onAuthStateChanged((user) => {
+    if (user && !user.emailVerified) {
+        console.log("Auth state changed - unverified user detected");
+        autoCheckEmailVerification();
+    }
+});
+    </script>
+              
+        <br><br><br>
+        <style>
+.animated-text p {
+    background-color: rgba(0, 0, 0, 0.4); /* Initial semi-transparent background */
+    color: #ffffff; /* White text color for contrast */
+    padding: 10px; /* Add some padding to create space between the text and the background */
+    border-radius: 10px; /* Rounded edges */
+    display: inline-block; /* Ensure the background covers only the text */
+    transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+/* Hover effect for PC */
+.animated-text p:hover {
+    background-color: rgba(110, 110, 110, 0.685); /* Lighter background on hover */
+}
+
+/* Touch effect for smartphones */
+.animated-text p.touched {
+    background-color: rgba(110, 110, 110, 0.685); /* Lighter background on touch */
+}
+            </style>
+       <div class="animated-text">
+         <p>Hello World!<br><br><br>This is my first website I made. I started compiling these site from 2 November 2023 as a hobby , from bare minimum site to now something different and unique. Time flies like flash. Its kind of fun compiling these site , but as usual more features = more bugs. I had to gone through fixing a ton lot of stuffs in order to add features and still I am fixing stuffs for these site in order to add new features to the site as I kind of love compiling site. I always believe in " Life without happiness is like useless to live. So, try to enjoy your life. "<br><br>Talking about the website , its a site where 17 players info's are available , in this site you can compare against other players available in this site. This site features unique designs which are not so much common in other websites; also it features login and signup through verified email and pass , google by the help of firebase ; for logged in users this site features no ads for them and the ability to vote for the players among the listed 17 players in this site but for non logged in users this site features ads for them. Users can verify the email, delete, create their account, change the password, submit and update vote thanks to firebase. It also features user info for the logged in user and features live chart voting result. This site uses bootstrap, jquery, fontawesome, firebase, google fonts, javascript, css, npm, wikipedia api, node js, recaptcha.<br><br>As a newbie in web development, I am still trying my level best in order to add new features to the site. I hope you guys are enjoying it.</p>
+       </div>
+       <script>
+        document.querySelector('.animated-text p').addEventListener('touchstart', function() {
+    this.classList.toggle('touched');
+});
+
+let isTouched = false;
+document.querySelector('.animated-text p').addEventListener('touchstart', function(event) {
+    event.preventDefault(); // Prevents accidental double triggers
+    if (!isTouched) {
+        this.classList.add('touched');
+        isTouched = true;
+    } else {
+        this.classList.remove('touched');
+        isTouched = false;
+    }
+});
+
+        </script>
+      <header class="text-center border-bottom py-3">
+        <h3>↓ Changelogs ↓</h3>
+        </header>
+        <style>
+    /* Ensure accordion-collapse and accordion-body are on top */
+    .accordion-collapse {
+        position: relative; /* Ensure positioning context */
+        z-index: 1; /* Higher z-index to ensure it's on top */
+    }
+/* Base styles for accordion body and card footer */
+.accordion-body,
+.card-footer {
+    background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent background */
+    color: #ffffff; /* White text for visibility */
+}
+
+/* Hover effect for PC */
+.accordion-body:hover,
+.card-footer:hover {
+    background-color: rgba(110, 110, 110, 0.685); /* Lighter semi-transparent background on hover */
+}
+
+/* Touch effect for smartphones */
+.accordion-body.touched,
+.card-footer.touched {
+    background-color: rgba(110, 110, 110, 0.685); /* Lighter semi-transparent background on touch */
+}
+            </style>
+        <div class="row mb-4">
+          <!-- First Card -->
+          <div class="col-md-6">
+              <div class="card-wrapper">
+                  <!-- Reusable Card Component -->
+                  <div class="p-4">
+                      <div class="accordion">
+                          <div class="accordion-item">
+                              <h2 class="accordion-header">
+                                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="background-color: #FF474C;">
+                                    X.X.X/X PRE-ALPHA or higher or lower
+                                  </button>
+                              </h2>
+                              <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample1">
+                                  <div class="accordion-body">
+                                      <div class="card-group">
+                                          <div class="card-body">
+                                              <p class="card-text">
+                                                  <ol>
+                                                      <p style="color: #03fe31;">( ETA 14.10.25 to 18.10.25 or later )</p>
+                                                      <li style="color: #000dff;">Will try to make "User info" more informational.</li>
+                                                      <li style="color: #000dff;">Will try to revamp design and stuffs for the site.</li>
+                                                      <li style="color: #f90000;">Up to date all players info.</li>
+                                                      <li style="color: #9c9b9b;">Might adapt new stuffs like free backends or anything for enhancing site's security more.</li>
+                                                      <li style="color: #9c9b9b;">Might try to make full players profile and statistics table list update automatically using wikipedia api.</li>
+                                                  </ol>
+                                              </p>
+                                              <div class="card-footer" style="background-color: rgba(0, 0, 0, 0);">
+                                                <small class="text">XX.XX.202X</small>
+                                            </div>
+                                            </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      
+          <!-- Second Card -->
+          <div class="col-md-6">
+              <div class="card-wrapper">
+                  <!-- Reusable Card Component -->
+                  <div class="p-4">
+                      <div class="accordion">
+                          <div class="accordion-item">
+                              <h2 class="accordion-header">
+                                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" style="background-color: #00a740;">
+                                    4.4.27/8/24
+                                  </button>
+                              </h2>
+                              <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample2">
+                                  <div class="accordion-body">
+                                      <div class="card-group">
+                                          <div class="card-body">
+                                              <p class="card-text">
+                                                  <ol>
+                                                    <li style="color: #fff;">Some adding and removing code lines for security purposes of the site.</li>
+                                                    <li style="color: #fff;">Overall code improvements for security purposes of the site.</li>
+                                                    <li style="color: #fff;">Non-verified emails automatically now deletes from firestore database within 10 minutes tnx for adding new javascript.</li>
+                                                    <li style="color: #fff;">Adapted node js to the site in order to delete non-verfied users stuffs from authentication of firebase, even though its manual but its like a script which can make my life easier.</li>
+                                                    <li style="color: #fff;">Added new meta headings for security enhancement.</li>
+                                                    <li style="color: #fff;">Made localStorage tampering harder for advanced users.</li>
+                                                    <li style="color: #fff;">Made voting form almost safer from advanced users.</li>
+                                                    <li style="color: #fff;">Made firestore rule safer from advanced users.</li>
+                                                    <li style="color: #fff;">Attempt to fix sign in,sign up etc functions (AGAIN). This time it should work perfectly.</li>
+                                                    <li style="color: #fff;">Added dozens of new javascripts here and there in the site and removed dozens of old javascripts for enhancing security of the site.</li>
+                                                    <li style="color: #fff;">Added recaptcha.</li>
+                                                    <li style="color: #fff;">Tried to improve overall security throughout the site by implementing new rule, new javascript, new stuffs etc etc.</li>  
+                                                </ol>
+                                              </p>
+                                              <div class="card-footer" style="background-color: rgba(0, 0, 0, 0);">
+                                                <small class="text">10.10.2025,14.10.25</small>
+                                            </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+<!--↓↓↓↓↓↓↓We need to add </div> for odd number card and we need to remove </div> for even number card ↓↓↓↓↓↓-->        
+<!-- HERE>>>>>> -->
+ <script>
+document.querySelectorAll('.accordion-body, .card-footer').forEach(function(element) {
+    let isTouched = false; // Track touch state for each element
+    element.addEventListener('touchstart', function(event) {
+        event.preventDefault(); // Prevents accidental double triggers
+        if (!isTouched) {
+            this.classList.add('touched');
+            isTouched = true;
+        } else {
+            this.classList.remove('touched');
+            isTouched = false;
+        }
+    });
+});
+
+    </script>
+</div><!--container-->
+
+<style>
+  .footer-animation {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 3s ease, transform 3s ease;
+  }
+
+  .footer-animation.animated {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+footer {
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+}
+
+
+    /* Semi-transparent on hover (PC) */
+    footer:hover {
+        background-color: rgba(110, 110, 110, 0.685);
+    }
+    
+    /* Semi-transparent when touched (Smartphones) */
+    footer.touched {
+        background-color: rgba(110, 110, 110, 0.685); /* Semi-transparent background */
+    }
+    </style>    
+<footer class="text-center footer-animation">
+<div class="container">
+<p class="mb-0">This site is solely written and maintained by Mahin Haque.<br>This site was last updated at 14 October 2025.<br>Website version: 4.4.27/8/24</p>
+</div>
+</footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const footer = document.querySelector("footer");
+      
+      // Create an Intersection Observer
+      const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animated');
+            observer.unobserve(entry.target); // Stop observing the element once it has animated
+          }
+        });
+      }, {
+        threshold: 0.1 // Trigger animation when 10% of the element is in view
+      });
+  
+      // Observe the footer
+      observer.observe(footer);
+    });
+
+    document.querySelectorAll('footer').forEach(function(element) {
+    let isTouched = false; // Track touch state for each element
+    element.addEventListener('touchstart', function(event) {
+        event.preventDefault(); // Prevents accidental double triggers
+        if (!isTouched) {
+            this.classList.add('touched');
+            isTouched = true;
+        } else {
+            this.classList.remove('touched');
+            isTouched = false;
+        }
+    });
+});
+
+  </script>
+ 
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+ </body>
+</html>
