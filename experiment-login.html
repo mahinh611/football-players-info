@@ -483,6 +483,8 @@ async function loginUser(event) {
             return;
         }
 
+        // Refresh user before checking verification
+await user.reload();
         // 🔹 Must verify email before login
         if (!user.emailVerified) {
             alert("Please verify your email before logging in.");
