@@ -516,7 +516,7 @@ async function loginUser(event) {
 
 
 async function sendPasswordReset() {
-    const email = document.getElementById('modalResetEmail').value.trim();
+    const email = document.getElementById("modalResetEmail").value.trim();
 
     if (!isValidEmail(email)) {
         alert("Please enter a valid email address.");
@@ -524,18 +524,37 @@ async function sendPasswordReset() {
     }
 
     try {
+        // 1️⃣ Check Firestore for matching user
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("email", "==", email));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            // DO NOT reveal if email exists
+            alert("If an account exists for this email, a password reset link has been sent.");
+            return;
+        }
+
+        const userDoc = snapshot.docs[0].data();
+
+        // 2️⃣ BLOCK unverified users unless passwordResetAllowed = true
+        if (!userDoc.emailVerified) {
+            alert("Password reset is only available for verified accounts.");
+            return;
+        }
+
+        // 3️⃣ ALLOW RESET
         await sendPasswordResetEmail(auth, email);
 
-        // Do NOT reveal if email exists (Google security rule)
         alert("If an account exists for this email, a password reset link has been sent.");
         $('#forgotPasswordModal').modal('hide');
 
     } catch (error) {
- // For privacy, show a generic message rather than exposing existence
-  console.error("Reset error:", error);
-  alert("If an account exists for this email, a password reset link has been sent.");
+        console.error("Reset error:", error);
+        alert("If an account exists for this email, a password reset link has been sent.");
     }
 }
+
 
     
 async function loginWithGoogle(event) {
