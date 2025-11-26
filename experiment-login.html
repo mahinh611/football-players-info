@@ -31,7 +31,7 @@
             Your browser does not support the video tag.
         </video>
     </div>
-    <div class="overlay"></div> 
+    <div class="overlay"></div>
 
     <script>
         // Function to check if a user is logged in
@@ -43,7 +43,7 @@
                 window.location.href = "index.html";
             }
         }
-    
+   
         // Call the function to check login status
         checkUserLoggedIn();
     </script>
@@ -135,10 +135,10 @@
           color: red;
       }
   </style>
-  
+ 
       </head>
       <body>
-      
+     
         <div class="navbar-container">
             <nav class="navbar navbar-expand-lg navbar fixed-top">
                 <div class="container-fluid">
@@ -181,7 +181,7 @@
                 </div>
             </nav>
         </div>
-      
+     
       <script>
       document.addEventListener("DOMContentLoaded", function () {
           const navbar = document.querySelector(".navbar");
@@ -195,7 +195,7 @@
           const emailDisplay = document.getElementById("email-display");
           const closeButton = document.getElementById("close-btn");
           const userInfoOverlay = document.querySelector(".user-info-overlay");
-      
+     
           // Check user login status
           function checkLoginStatus() {
               const userEmail = localStorage.getItem("userEmail");
@@ -214,46 +214,46 @@
                   logoutLink.style.display = "none";
               }
           }
-      
+     
           logoutLink.addEventListener("click", function () {
               localStorage.removeItem("userEmail");
               localStorage.removeItem("popupShown"); // Optionally reset popupShown
       checkLoginStatus();
       window.location.href="index.html";
   });
-      
+     
           // Handle user info button click
           userInfoButton.addEventListener("click", function (event) {
               event.preventDefault();
               userInfoContainer.classList.toggle("show-overlay");
-      
+     
               // Toggle slide-up or slide-down animation based on device type
               if (isMobileDevice()) {
                   userInfoOverlay.style.transform = "translateX(-50%) translateY(-100%)";
               } else {
                   userInfoOverlay.style.transform = "translateX(-50%) translateY(10px)";
               }
-      
+     
               userInfoOverlay.style.opacity = 1;
               userInfoOverlay.style.visibility = "visible";
               userInfoOverlay.style.pointerEvents = "auto";
           });
-      
+     
           // Handle close button click
           closeButton.addEventListener("click", function () {
               userInfoOverlay.style.opacity = 0;
               userInfoOverlay.style.visibility = "hidden";
               userInfoOverlay.style.pointerEvents = "none";
           });
-      
+     
           // Function to detect mobile device
           function isMobileDevice() {
               return window.innerWidth <= 768;
           }
-      
+     
           // Run on page load
           checkLoginStatus();
-      
+     
           window.addEventListener("scroll", function () {
               if (window.scrollY > 50) {
                   navbar.classList.add("scrolled");
@@ -261,7 +261,7 @@
                   navbar.classList.remove("scrolled");
               }
           });
-      
+     
           const observer = new IntersectionObserver((entries, observer) => {
               entries.forEach(entry => {
                   if (entry.isIntersecting) {
@@ -272,14 +272,14 @@
           }, {
               threshold: 0.1
           });
-      
+     
           elementsToAnimate.forEach(element => {
               observer.observe(element);
           });
       });
       </script>
   <br><br><br>
-    
+   
   <div class="container d-flex justify-content-center align-items-center min-vh-100" style="background-color:  rgba(110, 110, 110, 0.685);">
     <div class="row border rounded-5 p-3 box-area" style="background-color: rgba(110, 110, 110, 0.685);">
       <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box">
@@ -337,7 +337,7 @@
       </div>
     </div>
   </div>
-    
+   
     <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content" style="background-color:  rgba(110, 110, 110, 0.685);">
@@ -365,7 +365,7 @@
         import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
         import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider, signOut } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
         import { getFirestore, collection, query, where, getDoc, getDocs, doc, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
-    
+   
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -376,41 +376,17 @@
   isTokenAutoRefreshEnabled: true
 });
 
-async function handlePasswordReset() {
-  const resetEmail = document.getElementById("resetEmail").value;
-
-  // 1) requires login → otherwise blocked
-  const q = query(collection(db, "users"), where("email", "==", resetEmail));
-  const snapshot = await getDocs(q).catch(() => null);
-
-  if (!snapshot || snapshot.empty) {
-    alert("Account not found or you must log in first.");
-    return;
-  }
-
-  const data = snapshot.docs[0].data();
-
-  if (!data.emailVerified) {
-    alert("You must verify your email before resetting password.");
-    return;
-  }
-
-  await sendPasswordResetEmail(auth, resetEmail);
-  alert("Password reset email sent!");
-}
-
-
 // ✅ SIMPLE FIRESTORE CLEANUP (This works!)
 async function checkAndCleanExpiredUsers() {
     const user = auth.currentUser;
-    
+   
     if (user && !user.emailVerified) {
         const creationTime = user.metadata.creationTime;
         const accountAge = Date.now() - new Date(creationTime).getTime();
         const maxAge = 10 * 60 * 1000; // 10 minutes
-        
+       
         console.log(`⏰ Checking unverified user: ${Math.round(accountAge/1000)}s old`);
-        
+       
         if (accountAge > maxAge) {
             console.log('🚨 Cleaning up expired unverified user from Firestore');
             await performFirestoreCleanup(user);
@@ -425,24 +401,24 @@ async function performFirestoreCleanup(user) {
         const userDocRef = doc(db, "users", user.uid);
         await deleteDoc(userDocRef).catch(() => {});
         console.log('🗑️ Removed user data from Firestore');
-        
+       
         // Delete from Firestore votes collection
         const voteDocRef = doc(db, "votes", user.uid);
         await deleteDoc(voteDocRef).catch(() => {});
         console.log('🗑️ Removed vote data from Firestore');
-        
+       
         // Sign out user
         await signOut(auth);
         console.log('👋 Signed out user');
-        
+       
         // Clear localStorage
         localStorage.removeItem("userEmail");
         localStorage.removeItem("popupShown");
-        
+       
         // Show message and redirect
         alert('Please verify your email within 10 minutes. Your data has been cleared.');
         window.location.href = "index.html";
-        
+       
     } catch (error) {
         console.error('Error in Firestore cleanup:', error);
         // Still try to sign out
@@ -472,13 +448,13 @@ setTimeout(() => {
         checkAndCleanExpiredUsers();
     }
 }, 3000);
-    
+   
         // Function to validate email format
         function isValidEmail(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
         }
-    
+   
 async function loginUser(event) {
     event.preventDefault();
 
@@ -538,18 +514,8 @@ async function loginUser(event) {
     }
 }
 
-
 async function sendPasswordReset() {
-    const email = document.getElementById("modalResetEmail").value.trim();
-
-    if (!isValidEmail(email)) {
-        alert("Please enter a valid email address.");
-        return;
-    }
-
-    try {
-async function sendPasswordReset() {
-    const email = document.getElementById("modalResetEmail").value.trim();
+    const email = document.getElementById('modalResetEmail').value.trim();
 
     if (!isValidEmail(email)) {
         alert("Please enter a valid email address.");
@@ -558,22 +524,19 @@ async function sendPasswordReset() {
 
     try {
         await sendPasswordResetEmail(auth, email);
-    } catch (err) {
-        // Ignore errors to avoid email enumeration
-    }
 
-    alert("If an account exists for this email, a password reset link has been sent.");
-    $('#forgotPasswordModal').modal('hide');
-}
+        // Do NOT reveal if email exists (Google security rule)
+        alert("If an account exists for this email, a password reset link has been sent.");
+        $('#forgotPasswordModal').modal('hide');
 
     } catch (error) {
-        console.error("Reset error:", error);
-        alert("If an account exists for this email, a password reset link has been sent.");
+ // For privacy, show a generic message rather than exposing existence
+  console.error("Reset error:", error);
+  alert("If an account exists for this email, a password reset link has been sent.");
     }
 }
 
-
-    
+   
 async function loginWithGoogle(event) {
     event.preventDefault();
 
@@ -603,11 +566,11 @@ async function loginWithGoogle(event) {
     }
 }
 
-    
+   
         // Periodic check for email verification
 function checkEmailVerifiedPeriodically() {
     const user = auth.currentUser;
-    
+   
     if (!user) return;
 
     const intervalId = setInterval(async () => {
@@ -617,9 +580,9 @@ function checkEmailVerifiedPeriodically() {
                 clearInterval(intervalId); // Stop the interval
 
                 // Update Firestore to set emailVerified to true
-                await setDoc(doc(db, "users", user.uid), { 
-                    email: user.email, 
-                    emailVerified: true 
+                await setDoc(doc(db, "users", user.uid), {
+                    email: user.email,
+                    emailVerified: true
                 }, { merge: true });
 
                 // Save email to local storage and redirect
@@ -660,10 +623,10 @@ auth.onAuthStateChanged((user) => {
         autoCheckEmailVerification();
     }
 });
-    
+   
         // Wait for the DOM to load before attaching event listeners
         document.addEventListener("DOMContentLoaded", () => {
-            autoCheckEmailVerification(); 
+            autoCheckEmailVerification();
             document.getElementById('login').addEventListener("click", loginUser);
             document.getElementById('forgotPasswordLink').addEventListener("click", function () {
                 $('#forgotPasswordModal').modal('show');
