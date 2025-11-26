@@ -376,6 +376,30 @@
   isTokenAutoRefreshEnabled: true
 });
 
+async function handlePasswordReset() {
+  const resetEmail = document.getElementById("resetEmail").value;
+
+  // 1) requires login → otherwise blocked
+  const q = query(collection(db, "users"), where("email", "==", resetEmail));
+  const snapshot = await getDocs(q).catch(() => null);
+
+  if (!snapshot || snapshot.empty) {
+    alert("Account not found or you must log in first.");
+    return;
+  }
+
+  const data = snapshot.docs[0].data();
+
+  if (!data.emailVerified) {
+    alert("You must verify your email before resetting password.");
+    return;
+  }
+
+  await sendPasswordResetEmail(auth, resetEmail);
+  alert("Password reset email sent!");
+}
+
+
 // ✅ SIMPLE FIRESTORE CLEANUP (This works!)
 async function checkAndCleanExpiredUsers() {
     const user = auth.currentUser;
@@ -524,30 +548,23 @@ async function sendPasswordReset() {
     }
 
     try {
-        // 1️⃣ Check Firestore for matching user
-        const usersRef = collection(db, "users");
-        const q = query(usersRef, where("email", "==", email));
-        const snapshot = await getDocs(q);
+async function sendPasswordReset() {
+    const email = document.getElementById("modalResetEmail").value.trim();
 
-        if (snapshot.empty) {
-            // DO NOT reveal if email exists
-            alert("If an account exists for this email, a password reset link has been sent.");
-            return;
-        }
+    if (!isValidEmail(email)) {
+        alert("Please enter a valid email address.");
+        return;
+    }
 
-        const userDoc = snapshot.docs[0].data();
-
-        // 2️⃣ BLOCK unverified users unless passwordResetAllowed = true
-        if (!userDoc.emailVerified) {
-            alert("Password reset is only available for verified accounts.");
-            return;
-        }
-
-        // 3️⃣ ALLOW RESET
+    try {
         await sendPasswordResetEmail(auth, email);
+    } catch (err) {
+        // Ignore errors to avoid email enumeration
+    }
 
-        alert("If an account exists for this email, a password reset link has been sent.");
-        $('#forgotPasswordModal').modal('hide');
+    alert("If an account exists for this email, a password reset link has been sent.");
+    $('#forgotPasswordModal').modal('hide');
+}
 
     } catch (error) {
         console.error("Reset error:", error);
