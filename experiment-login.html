@@ -455,125 +455,118 @@ setTimeout(() => {
             return emailRegex.test(email);
         }
     
-        // Function to handle user login
-        async function loginUser(event) {
-            event.preventDefault();
-    
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-    
-            if (email.trim() === "" || password.trim() === "") {
-                alert("Please enter both email and password.");
-                return;
-            }
-    
-            if (!isValidEmail(email)) {
-                alert("Please enter a valid email address.");
-                return;
-            }
-    
-try {
-  const userCredential = await signInWithEmailAndPassword(auth, email, password);
-  const user = userCredential.user;
+async function loginUser(event) {
+    event.preventDefault();
 
-  if (!user.emailVerified) {
-    alert("Please verify your email before logging in.");
-    await signOut(auth);
-    return;
-  }
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-  // Load or create user doc if needed
-  const userDocRef = doc(db, "users", user.uid);
-  const userSnapshot = await getDoc(userDocRef);
-  if (!userSnapshot.exists()) {
-    await setDoc(userDocRef, {
-      email: user.email,
-      userId: user.uid,
-      emailVerified: user.emailVerified,
-      signInMethod: "password",
-      loginTime: Date.now()
-    });
-  }
+    if (email === "" || password === "") {
+        alert("Please enter both email and password.");
+        return;
+    }
 
-  localStorage.setItem("userEmail", user.email);
-  window.location.href = "index.html";
-} catch (error) {
-  console.error("Error during login: ", error);
-  alert("Invalid email or password.");
-}
-}
+    if (!isValidEmail(email)) {
+        alert("Please enter a valid email address.");
+        return;
+    }
 
-        // Function to handle sending password reset email
-        async function sendPasswordReset() {
-            const email = document.getElementById('modalResetEmail').value.trim();
-    
-            if (!isValidEmail(email)) {
-                alert("Please enter a valid email address.");
-                return;
-            }
-    
-            console.log("Attempting to reset password for:", email);
-    
-            try {
-                const usersRef = collection(db, "users");
-                const q = query(usersRef, where("email", "==", email));
-                const querySnapshot = await getDocs(q);
-    
-                if (querySnapshot.empty) {
-                    alert("Email not found.");
-                    return;
-                }
-    
-                const userData = querySnapshot.docs[0].data();
-    
-                if (userData.signInMethod === 'google') {
-                    alert("Google sign-up detected. Please log in through Google.");
-                    window.location.href = "experiment-login.html"; 
-                    return;
-                }
-    
-                if (!userData.emailVerified) {
-                    alert("You are not eligible for a password reset as your email is unverified.");
-                    return;
-                }
-    
-                await sendPasswordResetEmail(auth, email);
-                alert('Password reset email sent!');
-                $('#forgotPasswordModal').modal('hide');
-    
-            } catch (error) {
-                console.error("Error during password reset: ", error);
-                alert(`Error: ${error.message}`);
-            }
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // 🔹 Check sign-in method
+        const provider = user.providerData[0]?.providerId;
+        if (provider === "google.com") {
+            alert("This account uses Google Sign-In. Please sign in with Google.");
+            await signOut(auth);
+            return;
         }
-    
-        // Function to handle Google Sign-In
-        async function loginWithGoogle(event) {
-            event.preventDefault();
-            try {
-                const result = await signInWithPopup(auth, provider);
-                const user = result.user;
-                localStorage.setItem("userEmail", user.email);
-    
-                const userDoc = doc(db, "users", user.uid);
-                const userSnapshot = await getDoc(userDoc);
-    
-                if (userSnapshot.exists()) {
-                    window.location.href = "index.html";
-                } else {
-                    await setDoc(userDoc, { 
-                        email: user.email, 
-                        signupTime: Date.now(), 
-                        emailVerified: true, 
-                        signInMethod: 'google', 
-                        userId: user.uid 
-                    });
-                    window.location.href = "index.html";
-                }
-            } catch (error) {
-                alert("Failed to sign up with Google: " + error.message);
-            }
+
+        // 🔹 Must verify email before login
+        if (!user.emailVerified) {
+            alert("Please verify your email before logging in.");
+            await signOut(auth);
+            return;
         }
+
+        // 🔹 Load or create Firestore user doc
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnapshot = await getDoc(userDocRef);
+
+        if (!userSnapshot.exists()) {
+            await setDoc(userDocRef, {
+                email: user.email,
+                userId: user.uid,
+                emailVerified: true,
+                signInMethod: "password",
+                loginTime: Date.now()
+            });
+        }
+
+        // 🔹 Save email and redirect
+        localStorage.setItem("userEmail", user.email);
+        window.location.href = "index.html";
+
+    } catch (error) {
+        console.error("Login error:", error);
+        alert("Invalid email or password.");
+    }
+}
+
+
+async function sendPasswordReset() {
+    const email = document.getElementById('modalResetEmail').value.trim();
+
+    if (!isValidEmail(email)) {
+        alert("Please enter a valid email address.");
+        return;
+    }
+
+    try {
+        await sendPasswordResetEmail(auth, email);
+
+        // Do NOT reveal if email exists (Google security rule)
+        alert("If an account exists for this email, a password reset link has been sent.");
+        $('#forgotPasswordModal').modal('hide');
+
+    } catch (error) {
+ // For privacy, show a generic message rather than exposing existence
+  console.error("Reset error:", error);
+  alert("If an account exists for this email, a password reset link has been sent.");
+    }
+}
+
+    
+async function loginWithGoogle(event) {
+    event.preventDefault();
+
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        localStorage.setItem("userEmail", user.email);
+
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnapshot = await getDoc(userDocRef);
+
+        if (!userSnapshot.exists()) {
+            await setDoc(userDocRef, {
+                email: user.email,
+                userId: user.uid,
+                emailVerified: true,
+                signInMethod: "google",
+                signupTime: Date.now()
+            });
+        }
+
+        window.location.href = "index.html";
+
+    } catch (error) {
+        alert("Google sign-in failed: " + error.message);
+    }
+}
+
     
         // Periodic check for email verification
 function checkEmailVerifiedPeriodically() {
