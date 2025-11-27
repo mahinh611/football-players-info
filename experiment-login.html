@@ -415,7 +415,7 @@ async function loginUser(event) {
         await setDoc(doc(db, "users", user.uid), {
             email: user.email,
             userId: user.uid,
-            emailVerified: true,
+            emailVerified: user.emailVerified,
             signInMethod: "password",
             lastLogin: Date.now()
         }, { merge: true });
