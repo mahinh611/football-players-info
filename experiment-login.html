@@ -374,81 +374,7 @@
         initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider('6LdpeVYqAAAAAA2i5yEtBFiVV3cBS9WCAin8LK3w'),
   isTokenAutoRefreshEnabled: true
-});
-
-// ✅ SIMPLE FIRESTORE CLEANUP (This works!)
-async function checkAndCleanExpiredUsers() {
-    const user = auth.currentUser;
-   
-    if (user && !user.emailVerified) {
-        const creationTime = user.metadata.creationTime;
-        const accountAge = Date.now() - new Date(creationTime).getTime();
-        const maxAge = 10 * 60 * 1000; // 10 minutes
-       
-        console.log(`⏰ Checking unverified user: ${Math.round(accountAge/1000)}s old`);
-       
-        if (accountAge > maxAge) {
-            console.log('🚨 Cleaning up expired unverified user from Firestore');
-            await performFirestoreCleanup(user);
-        }
-    }
-}
-
-// ✅ ONLY CLEARS FIRESTORE (No auth deletion attempts)
-async function performFirestoreCleanup(user) {
-    try {
-        // Delete from Firestore users collection
-        const userDocRef = doc(db, "users", user.uid);
-        await deleteDoc(userDocRef).catch(() => {});
-        console.log('🗑️ Removed user data from Firestore');
-       
-        // Delete from Firestore votes collection
-        const voteDocRef = doc(db, "votes", user.uid);
-        await deleteDoc(voteDocRef).catch(() => {});
-        console.log('🗑️ Removed vote data from Firestore');
-       
-        // Sign out user
-        await signOut(auth);
-        console.log('👋 Signed out user');
-       
-        // Clear localStorage
-        localStorage.removeItem("userEmail");
-        localStorage.removeItem("popupShown");
-       
-        // Show message and redirect
-        alert('Please verify your email within 10 minutes. Your data has been cleared.');
-        window.location.href = "index.html";
-       
-    } catch (error) {
-        console.error('Error in Firestore cleanup:', error);
-        // Still try to sign out
-        await signOut(auth);
-        window.location.href = "index.html";
-    }
-}
-
-// ✅ START THE CLEANUP SYSTEM
-// Run check when auth state changes
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        checkAndCleanExpiredUsers();
-    }
-});
-
-// Run check periodically
-setInterval(() => {
-    if (auth.currentUser) {
-        checkAndCleanExpiredUsers();
-    }
-}, 60 * 1000); // Check every minute
-
-// Initial check after page load
-setTimeout(() => {
-    if (auth.currentUser) {
-        checkAndCleanExpiredUsers();
-    }
-}, 3000);
-   
+});  
         // Function to validate email format
         function isValidEmail(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -457,59 +383,45 @@ setTimeout(() => {
    
 async function loginUser(event) {
     event.preventDefault();
-
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
-
-    if (email === "" || password === "") {
+    if (!email || !password) {
         alert("Please enter both email and password.");
         return;
     }
-
     if (!isValidEmail(email)) {
         alert("Please enter a valid email address.");
         return;
     }
-
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-
-        // 🔹 Check sign-in method
+        // ❗ Prevent logging in with Google-made accounts
         const provider = user.providerData[0]?.providerId;
         if (provider === "google.com") {
-            alert("This account uses Google Sign-In. Please sign in with Google.");
+            alert("This account uses Google Sign‑In. Please sign in with Google.");
             await signOut(auth);
             return;
         }
-
         // Refresh user before checking verification
-await user.reload();
-        // 🔹 Must verify email before login
+        await user.reload();
+        // ❗ If NOT verified → block login
         if (!user.emailVerified) {
-            alert("Please verify your email before logging in.");
+            alert("Please verify your email first. Once done, you can log in.");
             await signOut(auth);
             return;
         }
-
-        // 🔹 Load or create Firestore user doc
-        const userDocRef = doc(db, "users", user.uid);
-        const userSnapshot = await getDoc(userDocRef);
-
-        if (!userSnapshot.exists()) {
-            await setDoc(userDocRef, {
-                email: user.email,
-                userId: user.uid,
-                emailVerified: true,
-                signInMethod: "password",
-                loginTime: Date.now()
-            });
-        }
-
-        // 🔹 Save email and redirect
+        // If verified → update Firestore
+        await setDoc(doc(db, "users", user.uid), {
+            email: user.email,
+            userId: user.uid,
+            emailVerified: true,
+            signInMethod: "password",
+            lastLogin: Date.now()
+        }, { merge: true });
+        // Save basic session locally
         localStorage.setItem("userEmail", user.email);
         window.location.href = "index.html";
-
     } catch (error) {
         console.error("Login error:", error);
         alert("Invalid email or password.");
@@ -569,66 +481,8 @@ async function loginWithGoogle(event) {
 }
 
    
-        // Periodic check for email verification
-function checkEmailVerifiedPeriodically() {
-    const user = auth.currentUser;
-   
-    if (!user) return;
-
-    const intervalId = setInterval(async () => {
-        try {
-            await user.reload(); // Refresh user data
-            if (user.emailVerified) {
-                clearInterval(intervalId); // Stop the interval
-
-                // Update Firestore to set emailVerified to true
-                await setDoc(doc(db, "users", user.uid), {
-                    email: user.email,
-                    emailVerified: true
-                }, { merge: true });
-
-                // Save email to local storage and redirect
-                localStorage.setItem("userEmail", user.email);
-                window.location.href = "index.html";
-            }
-        } catch (error) {
-            console.error("Error checking email verification:", error);
-            clearInterval(intervalId);
-        }
-    }, 3000); // Check every 3 seconds
-}
-
-// Automatically check for email verification
-async function autoCheckEmailVerification() {
-    const user = auth.currentUser;
-    if (user) {
-        try {
-            await user.reload();
-            if (!user.emailVerified) {
-                console.log("User not verified, starting periodic check");
-                checkEmailVerifiedPeriodically();
-            } else {
-                console.log("User already verified, redirecting");
-                localStorage.setItem("userEmail", user.email);
-                window.location.href = "index.html";
-            }
-        } catch (error) {
-            console.error("Error in auto check:", error);
-        }
-    }
-}
-
-// Use Firebase auth state observer instead of DOMContentLoaded
-auth.onAuthStateChanged((user) => {
-    if (user && !user.emailVerified) {
-        console.log("Auth state changed - unverified user detected");
-        autoCheckEmailVerification();
-    }
-});
-   
         // Wait for the DOM to load before attaching event listeners
         document.addEventListener("DOMContentLoaded", () => {
-            autoCheckEmailVerification();
             document.getElementById('login').addEventListener("click", loginUser);
             document.getElementById('forgotPasswordLink').addEventListener("click", function () {
                 $('#forgotPasswordModal').modal('show');
