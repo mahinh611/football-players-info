@@ -1978,13 +1978,12 @@ document.addEventListener('DOMContentLoaded', function() {
 $("#voting").submit(async function(event){
     event.preventDefault();
 
-// Update your voting form to use enhancedSanitize
-const nameInput = enhancedSanitize($('#voting-form input[name="name"]').val()).trim();
-const favoriteInput = enhancedSanitize($('#voting-form input[name="my-favorite"]').val()).trim();
-const whyFavorite = enhancedSanitize($('#voting-form textarea[name="why-favorite"]').val()).trim();
+    const nameInput = enhancedSanitize($('#voting-form input[name="name"]').val()).trim();
+    const favoriteInput = enhancedSanitize($('#voting-form input[name="my-favorite"]').val()).trim();
+    const whyFavorite = enhancedSanitize($('#voting-form textarea[name="why-favorite"]').val()).trim();
 
     if (!nameInput || !favoriteInput || !whyFavorite) {
-        alert('Please fill out all fields before submitting.');
+        alert('Please fill out all fields.');
         return;
     }
 
@@ -1994,7 +1993,12 @@ const whyFavorite = enhancedSanitize($('#voting-form textarea[name="why-favorite
         return;
     }
 
-    // Voting submission data
+    // Document reference MUST be user.uid to satisfy Firestore rules
+    const voteDocRef = window.firebaseApp.doc(
+        window.firebaseApp.collection(window.firebaseApp.db, "votes"),
+        user.uid
+    );
+
     const voteData = {
         favoritePlayer: favoriteInput,
         reason: whyFavorite,
@@ -2002,48 +2006,25 @@ const whyFavorite = enhancedSanitize($('#voting-form textarea[name="why-favorite
         userId: user.uid
     };
 
-    console.log("Submitting vote:", voteData);
-
     try {
-        // Check if user already has a vote
-        const votesQuery = window.firebaseApp.query(
-            window.firebaseApp.collection(window.firebaseApp.db, "votes"),
-            window.firebaseApp.where("userId", "==", user.uid)
-        );
-        
-        const querySnapshot = await window.firebaseApp.getDocs(votesQuery);
-        
-        if (!querySnapshot.empty) {
-            // Update existing vote
-            const existingVoteDoc = querySnapshot.docs[0];
-            await window.firebaseApp.updateDoc(existingVoteDoc.ref, voteData);
-            console.log("Vote updated successfully");
-// WITH this safe version:
-const safeAlert = document.createElement('div');
-safeAlert.className = 'alert alert-success';
-safeAlert.textContent = `Thank you ${nameInput}, for your vote!`;
-document.getElementById('voting-form').textContent = '';
-document.getElementById('voting-form').appendChild(safeAlert);
+        const existing = await window.firebaseApp.getDoc(voteDocRef);
+
+        if (existing.exists()) {
+            await window.firebaseApp.updateDoc(voteDocRef, voteData);
         } else {
-            // Create new vote with user ID as document ID to match security rules
-            const voteDocRef = window.firebaseApp.doc(window.firebaseApp.collection(window.firebaseApp.db, "votes"), user.uid);
             await window.firebaseApp.setDoc(voteDocRef, voteData);
-            console.log("Vote submitted successfully");
-// WITH this safe version:
-const safeAlert = document.createElement('div');
-safeAlert.className = 'alert alert-success';
-safeAlert.textContent = `Thank you ${nameInput}, for your vote!`;
-document.getElementById('voting-form').textContent = '';
-document.getElementById('voting-form').appendChild(safeAlert);
         }
-        
+
+        const safeAlert = document.createElement('div');
+        safeAlert.className = 'alert alert-success';
+        safeAlert.textContent = `Thank you ${nameInput}, for your vote!`;
+
+        document.getElementById('voting-form').textContent = '';
+        document.getElementById('voting-form').appendChild(safeAlert);
+
     } catch (error) {
         console.error("Error saving vote:", error);
-        if (error.code === 'permission-denied') {
-            alert("Permission denied. Please make sure you're logged in and try again.");
-        } else {
-            alert("Error: " + error.message);
-        }
+        alert("Error saving vote: " + error.message);
     }
 });
 </script>
