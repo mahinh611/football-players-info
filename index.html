@@ -803,50 +803,78 @@ async function fetchPlayerInfo(playerName) {
     }
 }
 
-// Extract birth info from text
 function extractBornFromText(text) {
-    let birthInfo = '';
-    let age = '';
-    
+    let birthInfo = "";
+    let age = "";
+
     if (!text) return { birthInfo, age };
-    
-    // Multiple patterns to catch different date formats in Wikipedia text
-    const patterns = [
-        /born\s+([^,.]+?\d{1,2}\s+\w+\s+\d{4})/i,
-        /born\s+([^,.]+?\w+\s+\d{1,2},\s+\d{4})/i,
-        /born\s+([^,.]+?\d{4}-\d{1,2}-\d{1,2})/i,
-        /born on\s+([^,.]+?\d{1,2}\s+\w+\s+\d{4})/i,
-        /born\s+([^,.]+?\(\s*\d{4}[^)]*\))/i,
-        /born[^,.]+?(\d{4})/i
+
+    // Very complete regex for capturing birth date in all common Wikipedia formats
+    const datePatterns = [
+        // Standard "born 24 June 1987"
+        /born[^0-9]{0,10}(\d{1,2}\s+\w+\s+\d{4})/i,
+
+        // "born June 24, 1987"
+        /born[^0-9]{0,10}(\w+\s+\d{1,2},\s+\d{4})/i,
+
+        // "born 1987-06-24"
+        /born[^0-9]{0,10}(\d{4}-\d{1,2}-\d{1,2})/i,
+
+        // "born on 24 June 1987"
+        /born on[^0-9]{0,10}(\d{1,2}\s+\w+\s+\d{4})/i,
+
+        // "(born 24 June 1987)"
+        /\(born\s+(\d{1,2}\s+\w+\s+\d{4})/i,
+
+        // "(born June 24, 1987)"
+        /\(born\s+(\w+\s+\d{1,2},\s+\d{4})/i,
+
+        // Fallback — extract year only
+        /born[^0-9]+(19|20)\d{2}/i
     ];
-    
-    for (const pattern of patterns) {
+
+    for (const pattern of datePatterns) {
         const match = text.match(pattern);
         if (match) {
-            // Use the first capture group if available, otherwise use the whole match
-            birthInfo = (match[1] || match[0]).trim();
-            console.log('Found birth info with pattern:', birthInfo);
-            
-            // Calculate age from the birth info
-            age = calculateAgeFromText(birthInfo);
+            birthInfo = match[1] || match[0];
             break;
         }
     }
-    
-    return { birthInfo, age };
+  }
+
+function calculateAgeFromText(birthText) {
+    // Extract full date (day + month + year)
+    const fullDateMatch = birthText.match(/(\d{1,2}\s+\w+\s+\d{4})|(\w+\s+\d{1,2},\s+\d{4})|(\d{4}-\d{1,2}-\d{1,2})/);
+
+    if (!fullDateMatch) return ""; // Can't calculate properly
+
+    let birthDateStr = fullDateMatch[0];
+    let birthDate;
+
+    // Try parsing multiple formats
+    if (birthDateStr.includes("-")) {
+        // YYYY-MM-DD
+        birthDate = new Date(birthDateStr);
+    } else {
+        // Formats like "24 June 1987" or "June 24, 1987"
+        birthDate = new Date(Date.parse(birthDateStr));
+    }
+
+    if (isNaN(birthDate)) return "";
+
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    // Check if birthday has NOT occurred yet this year
+    const thisYearsBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+
+    if (today < thisYearsBirthday) {
+        age--; // Birthday not yet reached
+    }
+
+    return age.toString();
 }
 
-// Calculate age from birth text
-function calculateAgeFromText(birthText) {
-    const yearMatch = birthText.match(/\b(19|20)\d{2}\b/);
-    if (yearMatch) {
-        const currentYear = new Date().getFullYear();
-        const birthYear = parseInt(yearMatch[0]);
-        const age = currentYear - birthYear;
-        return age > 0 ? age.toString() : '';
-    }
-    return '';
-}
 
 // Function to extract first 3 complete sentences
 function getFirstThreeSentences(text) {
