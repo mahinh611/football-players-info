@@ -809,27 +809,13 @@ function extractBornFromText(text) {
 
     if (!text) return { birthInfo, age };
 
-    // Very complete regex for capturing birth date in all common Wikipedia formats
     const datePatterns = [
-        // Standard "born 24 June 1987"
         /born[^0-9]{0,10}(\d{1,2}\s+\w+\s+\d{4})/i,
-
-        // "born June 24, 1987"
         /born[^0-9]{0,10}(\w+\s+\d{1,2},\s+\d{4})/i,
-
-        // "born 1987-06-24"
         /born[^0-9]{0,10}(\d{4}-\d{1,2}-\d{1,2})/i,
-
-        // "born on 24 June 1987"
         /born on[^0-9]{0,10}(\d{1,2}\s+\w+\s+\d{4})/i,
-
-        // "(born 24 June 1987)"
         /\(born\s+(\d{1,2}\s+\w+\s+\d{4})/i,
-
-        // "(born June 24, 1987)"
         /\(born\s+(\w+\s+\d{1,2},\s+\d{4})/i,
-
-        // Fallback — extract year only
         /born[^0-9]+(19|20)\d{2}/i
     ];
 
@@ -840,7 +826,15 @@ function extractBornFromText(text) {
             break;
         }
     }
-  }
+
+    // If we extracted something → calculate age
+    if (birthInfo !== "") {
+        age = calculateAgeFromText(birthInfo);
+    }
+
+    return { birthInfo, age };
+}
+
 
 function calculateAgeFromText(birthText) {
     // Extract full date (day + month + year)
