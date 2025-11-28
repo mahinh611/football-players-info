@@ -752,262 +752,254 @@ const playerWikipediaMap = {
     'Virgil': 'Virgil_van_Dijk'
 };
 
-
-// ----------------------------------------------
-// FETCH WIKIPEDIA (intro + infobox)
-// ----------------------------------------------
 async function fetchPlayerInfo(playerName) {
     const wikiPageName = playerWikipediaMap[playerName];
-    if (!wikiPageName) return null;
+    
+    if (!wikiPageName) {
+        console.log(`No Wikipedia mapping for: ${playerName}`);
+        return null;
+    }
 
     try {
+        // Use Wikipedia's action API which is more CORS-friendly
         const response = await fetch(
-            `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts|pageimages|revisions&rvprop=content&rvslots=main&exintro=true&explaintext=true&pithumbsize=300&titles=${encodeURIComponent(wikiPageName)}&origin=*`
+            `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts|pageimages&exintro=true&explaintext=true&pithumbsize=300&titles=${encodeURIComponent(wikiPageName)}&origin=*`
         );
-
+        
+        if (!response.ok) {
+            throw new Error('Player not found on Wikipedia');
+        }
+        
         const data = await response.json();
-        const pageId = Object.keys(data.query.pages)[0];
-        const pageData = data.query.pages[pageId];
-
-        const description = pageData.extract || "";
-        const image = pageData.thumbnail?.source || "";
-
-        const wikiText = pageData.revisions?.[0]?.slots?.main?.content || "";
-
+        const pages = data.query.pages;
+        const pageId = Object.keys(pages)[0];
+        const pageData = pages[pageId];
+        
+        if (pageData.missing) {
+            throw new Error('Player page not found');
+        }
+        
+        const description = pageData.extract || 'No description available.';
+        const image = pageData.thumbnail?.source;
+        
+        // Extract birth info from the description
         const bornInfo = extractBornFromText(description);
-        const footballInfo = extractFootballInfo(wikiText);
-
+        console.log(`Born info for ${playerName}:`, bornInfo);
+        
         return {
-            description,
-            image,
+            description: description,
+            image: image,
             lastUpdated: new Date().toLocaleDateString(),
-            ...bornInfo,
-            ...footballInfo
+            ...bornInfo
         };
-
-    } catch (e) {
-        console.log("Wikipedia error:", e);
-        return null;
+    } catch (error) {
+        console.log(`Wikipedia API error for ${playerName}:`, error);
+        return {
+            description: `Could not load information for ${playerName}.`,
+            lastUpdated: new Date().toLocaleDateString(),
+            birthInfo: '',
+            age: ''
+        };
     }
 }
 
-
-// ----------------------------------------------
-// EXTRACT BIRTH INFO + AGE
-// ----------------------------------------------
 function extractBornFromText(text) {
     let birthInfo = "";
     let age = "";
+
+    if (!text) return { birthInfo, age };
 
     const datePatterns = [
         /born[^0-9]{0,10}(\d{1,2}\s+\w+\s+\d{4})/i,
         /born[^0-9]{0,10}(\w+\s+\d{1,2},\s+\d{4})/i,
         /born[^0-9]{0,10}(\d{4}-\d{1,2}-\d{1,2})/i,
+        /born on[^0-9]{0,10}(\d{1,2}\s+\w+\s+\d{4})/i,
         /\(born\s+(\d{1,2}\s+\w+\s+\d{4})/i,
-        /\(born\s+(\w+\s+\d{1,2},\s+\d{4})/i
+        /\(born\s+(\w+\s+\d{1,2},\s+\d{4})/i,
+        /born[^0-9]+(19|20)\d{2}/i
     ];
 
-    for (const p of datePatterns) {
-        const m = text.match(p);
-        if (m) {
-            birthInfo = m[1] || m[0];
+    for (const pattern of datePatterns) {
+        const match = text.match(pattern);
+        if (match) {
+            birthInfo = match[1] || match[0];
             break;
         }
     }
 
-    if (birthInfo) age = calculateAgeFromText(birthInfo);
+    // If we extracted something → calculate age
+    if (birthInfo !== "") {
+        age = calculateAgeFromText(birthInfo);
+    }
+
     return { birthInfo, age };
 }
 
 
-// ----------------------------------------------
-// AGE CALCULATOR
-// ----------------------------------------------
 function calculateAgeFromText(birthText) {
-    const match = birthText.match(/(\d{1,2}\s+\w+\s+\d{4})|(\w+\s+\d{1,2},\s+\d{4})/);
-    if (!match) return "";
+    // Extract full date (day + month + year)
+    const fullDateMatch = birthText.match(/(\d{1,2}\s+\w+\s+\d{4})|(\w+\s+\d{1,2},\s+\d{4})|(\d{4}-\d{1,2}-\d{1,2})/);
 
-    let date = new Date(match[0]);
-    if (isNaN(date)) return "";
+    if (!fullDateMatch) return ""; // Can't calculate properly
+
+    let birthDateStr = fullDateMatch[0];
+    let birthDate;
+
+    // Try parsing multiple formats
+    if (birthDateStr.includes("-")) {
+        // YYYY-MM-DD
+        birthDate = new Date(birthDateStr);
+    } else {
+        // Formats like "24 June 1987" or "June 24, 1987"
+        birthDate = new Date(Date.parse(birthDateStr));
+    }
+
+    if (isNaN(birthDate)) return "";
 
     const today = new Date();
-    let age = today.getFullYear() - date.getFullYear();
+    let age = today.getFullYear() - birthDate.getFullYear();
 
-    const birthdayThisYear = new Date(today.getFullYear(), date.getMonth(), date.getDate());
-    if (today < birthdayThisYear) age--;
+    // Check if birthday has NOT occurred yet this year
+    const thisYearsBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
 
-    return age;
+    if (today < thisYearsBirthday) {
+        age--; // Birthday not yet reached
+    }
+
+    return age.toString();
 }
 
 
-// ----------------------------------------------
-// EXTRACT CLUBS + NATIONAL TEAM + CURRENT CLUB
-// ----------------------------------------------
-function extractFootballInfo(wikiText) {
-    if (!wikiText) return {};
-
-    const clubs = [];
-    const nationalTeams = [];
-    let currentClub = "";
-    let lastClub = "";
-    let lastNationalTeam = "";
-    let isRetired = false;
-
-    if (/retired|former/i.test(wikiText)) {
-        isRetired = true;
-    }
-
-    const clubRegex = /\|\s*clubs\d+\s*=\s*([^\n]+)/gi;
-    let m;
-    while ((m = clubRegex.exec(wikiText)) !== null) {
-        clubs.push(m[1].trim());
-    }
-
-    const currentClubMatch = wikiText.match(/\|\s*currentclub\s*=\s*([^\n]+)/i);
-    if (currentClubMatch) currentClub = currentClubMatch[1].trim();
-
-    if (clubs.length > 0) lastClub = clubs[clubs.length - 1];
-
-    const natRegex = /\|\s*nationalteam\d+\s*=\s*([^\n]+)/gi;
-    while ((m = natRegex.exec(wikiText)) !== null) {
-        nationalTeams.push(m[1].trim());
-    }
-
-    if (nationalTeams.length > 0) lastNationalTeam = nationalTeams[nationalTeams.length - 1];
-
-    return {
-        clubs,
-        nationalTeams,
-        currentClub,
-        lastClub,
-        lastNationalTeam,
-        isRetired
-    };
-}
-
-
-// ----------------------------------------------
-// FIRST 3 SENTENCES
-// ----------------------------------------------
+// Function to extract first 3 complete sentences
 function getFirstThreeSentences(text) {
-    if (!text) return "";
-    const s = text.match(/[^.!?]+[.!?]+/g) || [text];
-    return s.slice(0, 3).join(" ");
+    if (!text) return '';
+    
+    // Split by sentence endings (. ! ?) but avoid splitting on abbreviations
+    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+    
+    // Take first 3 sentences
+    const firstThree = sentences.slice(0, 3);
+    
+    // Join them back together
+    return firstThree.join(' ').trim();
 }
 
-
-// ----------------------------------------------
-// UPDATE UI WITH WIKIPEDIA DATA
-// ----------------------------------------------
+// Update player info with Wikipedia data
 async function updatePlayerProfile(playerElement, playerName) {
-    const overlay = playerElement.querySelector('.content-overlay');
-    const existingText = overlay.querySelector('p');
-
-    if (existingText && !overlay.querySelector('.wiki-update')) {
-
-        // loading box
+    const contentOverlay = playerElement.querySelector('.content-overlay');
+    const existingText = contentOverlay.querySelector('p');
+    
+    if (existingText && !contentOverlay.querySelector('.wiki-update')) {
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'wiki-loading';
-        loadingDiv.innerHTML = `<small style="color:#07ec67;">🔄 Loading Wikipedia info...</small>`;
-        existingText.insertAdjacentElement("afterend", loadingDiv);
-
-        const wikiData = await fetchPlayerInfo(playerName);
+        loadingDiv.innerHTML = `<small style="color: #07ec67;">🔄 Loading Wikipedia info...</small>`;
+        existingText.parentNode.insertBefore(loadingDiv, existingText.nextSibling);
+        
+        let wikiData;
+        
+        try {
+            wikiData = await fetchPlayerInfo(playerName);
+        } catch (error) {
+            console.log('Failed to fetch Wikipedia data:', error);
+            wikiData = {
+                description: `Could not load information for ${playerName}.`,
+                lastUpdated: new Date().toLocaleDateString(),
+                birthInfo: '',
+                age: ''
+            };
+        }
+        
+        // Remove loading indicator
         loadingDiv.remove();
-
-        const div = document.createElement('div');
-        div.className = "wiki-update";
-
-        let html = "";
-
-        // ----------------------------------
-        // Description
-        // ----------------------------------
+        
+        const wikiInfo = document.createElement('div');
+        wikiInfo.className = 'wiki-update';
+        
+        let infoHTML = '';
+        
         if (wikiData.description) {
-            html += `<p class="wiki-description"><em>${getFirstThreeSentences(wikiData.description)}</em></p>`;
+            // Get first 3 complete sentences
+            const threeSentences = getFirstThreeSentences(wikiData.description);
+            infoHTML += `<p class="wiki-description"><em>${threeSentences}</em></p>`;
         }
-
-        // ----------------------------------
-        // Born + Age
-        // ----------------------------------
-        if (wikiData.birthInfo) {
-            html += `<p><strong><u>Born:</u></strong> ${wikiData.birthInfo} (age ${wikiData.age})</p>`;
-        }
-
-        // ----------------------------------
-        // Football teams
-        // ----------------------------------
-        if (wikiData.isRetired) {
-            html += `<p><strong><u>Last Club Played:</u></strong> ${wikiData.lastClub}</p>`;
-            html += `<p><strong><u>National Team Played:</u></strong> ${wikiData.lastNationalTeam}</p>`;
+        
+        // Add born information if available
+        if (wikiData.birthInfo && wikiData.birthInfo !== '') {
+            const ageText = wikiData.age ? ` (age ${wikiData.age} years)` : '';
+            infoHTML += `<p><strong><u>Born:</u></strong> ${wikiData.birthInfo}${ageText}</p>`;
         } else {
-            if (wikiData.currentClub)
-                html += `<p><strong><u>Current Club:</u></strong> ${wikiData.currentClub}</p>`;
-
-            if (wikiData.nationalTeams.length > 0)
-                html += `<p><strong><u>National Team:</u></strong> ${wikiData.lastNationalTeam}</p>`;
+            infoHTML += `<p><small style="color: #ff6b6b;">Born information not available</small></p>`;
         }
-
-        if (wikiData.clubs.length > 0)
-            html += `<p><strong><u>All Clubs:</u></strong> ${wikiData.clubs.join(", ")}</p>`;
-
-        html += `<small style="color:#07ec67;">📚 Wikipedia • Updated: ${wikiData.lastUpdated}</small>`;
-
-        div.innerHTML = html;
-        existingText.insertAdjacentElement("afterend", div);
+        
+        // Add timestamp
+        infoHTML += `<small style="color: #07ec67; font-size: 0.8em;">
+            📚 Info from Wikipedia • Updated: ${wikiData.lastUpdated}
+        </small>`;
+        
+        wikiInfo.innerHTML = infoHTML;
+        existingText.parentNode.insertBefore(wikiInfo, existingText.nextSibling);
     }
 }
 
-
-// ----------------------------------------------
-// INITIALIZE WHEN TABS OPEN
-// ----------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
+// Initialize Wikipedia updates when tab is opened
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for page to fully load
     setTimeout(() => {
-        const tabs = document.querySelectorAll('.tab-pane');
-
-        tabs.forEach(tab => {
-            const button = document.querySelector(`[data-bs-target="#${tab.id}"]`);
-            const name = button.textContent.trim();
-
-            button.addEventListener("shown.bs.tab", () => {
-                if (!tab.querySelector('.wiki-update') && !tab.querySelector('.wiki-loading')) {
-                    updatePlayerProfile(tab, name);
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        
+        tabPanes.forEach(tabPane => {
+            const tabButton = document.querySelector(`[data-bs-target="#${tabPane.id}"]`);
+            const playerName = tabButton.textContent.trim();
+            
+            // Update when tab is shown
+            tabButton.addEventListener('shown.bs.tab', function() {
+                // Only load if not already loaded
+                if (!tabPane.querySelector('.wiki-update') && !tabPane.querySelector('.wiki-loading')) {
+                    updatePlayerProfile(tabPane, playerName);
                 }
             });
         });
-
+        
+        // Update first tab on page load
         const firstTab = document.querySelector('.tab-pane.active');
-        const firstName = document.querySelector('.nav-link.active').textContent.trim();
-        updatePlayerProfile(firstTab, firstName);
-
-    }, 150);
+        const firstPlayer = document.querySelector('.nav-link.active').textContent.trim();
+        if (firstTab && !firstTab.querySelector('.wiki-update')) {
+            updatePlayerProfile(firstTab, firstPlayer);
+        }
+    }, 100);
 });
 
-
-// ----------------------------------------------
-// CSS
-// ----------------------------------------------
-const style = document.createElement("style");
+// Add CSS styles
+const style = document.createElement('style');
 style.textContent = `
-.wiki-update {
-    margin-top: 10px;
-    padding: 10px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 6px;
-    border-left: 3px solid #07ec67;
-}
-.wiki-description {
-    line-height: 1.4;
-    margin-bottom: 10px;
-}
-.wiki-loading {
-    padding: 10px;
-    text-align: center;
-    font-style: italic;
-}
+    .wiki-update {
+        margin-top: 10px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        border-left: 3px solid #07ec67;
+    }
+    
+    .wiki-description {
+        line-height: 1.4;
+        margin-bottom: 8px;
+    }
+    
+    .wiki-loading {
+        text-align: center;
+        padding: 10px;
+        font-style: italic;
+    }
+    
+    .wiki-error {
+        text-align: center;
+        padding: 10px;
+        color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.1);
+        border-radius: 5px;
+    }
 `;
 document.head.appendChild(style);
-
 
         // Periodic check for email verification
 function checkEmailVerifiedPeriodically() {
