@@ -1142,17 +1142,31 @@ auth.onAuthStateChanged((user) => {
       <br>
       <style>
 #pills {
-    height: 550px; /* Fixed height for the pills container */
-    overflow-y: auto; /* Allow vertical scrolling if content exceeds height */
-    overflow-x: hidden; /* Hide horizontal scrollbar */
-    width: fit-content; /* Adjust width to fit content */
-    z-index: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    margin-bottom: 15px;
+    padding-bottom: 12px; /* <- moves pills above scrollbar */
+    z-index: 10;
+    position: relative;
+}
+
+#pills .nav {
+    display: flex;          /* keep pills in a row */
+    flex-wrap: nowrap;      /* do NOT wrap to next line */
+    width: max-content;     /* allow full width for scrolling */
+}
+
+#pills .nav-link {
+    flex: 0 0 auto;         /* do not shrink or grow pills */
+    white-space: nowrap;    
+    margin-right: 5px;      /* spacing between pills */
 }
 
 .tab-content {
     position: relative; /* Ensure it can contain the absolutely positioned video container */
     width: 100%; /* Expand to fill parent width */
-    max-height: 550px; /* Maximum height for the tab content */
+    max-height: 500px; /* Maximum height for the tab content */
     background-color: #222222; /* Dark background color */
     overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
     overflow-x: hidden; /* Hide horizontal scrollbar */
@@ -1163,7 +1177,7 @@ auth.onAuthStateChanged((user) => {
     z-index: 1;
     padding: 5px;
     color: #fff;
-    min-height: 550px; /* Minimum height for tab pane */
+    min-height: 500px; /* Minimum height for tab pane */
     display: flex;
     flex-direction: column;
     overflow: hidden; /* Hide overflow to ensure proper stacking */
@@ -1215,9 +1229,9 @@ video.background-video {
     }
 }
     </style>
-      <div class="d-flex align-items-start">
+      
         <div id="pills" class="container-fluid">
-        <div class="nav flex-column nav-pills me-3 slide-in-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+        <div class="nav nav-pills me-3 slide-in-pills" id="v-pills-tab" role="tablist" aria-orientation="horizontal">
           <button class="nav-link active" id="v-pills-messi-tab" data-bs-toggle="pill" data-bs-target="#v-pills-messi" type="button" role="tab" aria-controls="v-pills-messi" aria-selected="true">Messi</button>
           <button class="nav-link" id="v-pills-ronaldo-tab" data-bs-toggle="pill" data-bs-target="#v-pills-ronaldo" type="button" role="tab" aria-controls="v-pills-ronaldo" aria-selected="false">Ronaldo</button>
           <button class="nav-link" id="v-pills-neymar-tab" data-bs-toggle="pill" data-bs-target="#v-pills-neymar" type="button" role="tab" aria-controls="v-pills-neymar" aria-selected="false">Neymar</button>
@@ -1592,7 +1606,7 @@ video.background-video {
                   
                               <a target="_blank" href="https://en.wikipedia.org/wiki/Virgil_van_Dijk">Learn more about Virgil</a></div></div>
               </div>
-          </div>
+          
           <script>
             document.addEventListener('DOMContentLoaded', function() {
                 // Intersection Observer for pills animation
@@ -2368,7 +2382,7 @@ footer {
     <p><br></p>    
 <footer class="text-center footer-animation">
   <div class="container">
-    <p class="mb-0">This site is solely written and maintained by Mahin Haque.<br>This site was last updated at 28 November 2025.<br>Website version: 4.5.27/8/24</p>
+    <p class="mb-0">This site is solely written and maintained by Mahin Haque.<br>This site was last updated at 3 January 2026.<br>Website version: 4.6.27/8/24</p>
   </div>
 </footer>
       <script>
