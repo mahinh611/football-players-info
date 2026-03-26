@@ -15,6 +15,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script type="text/javascript" src="experiment-js/experiment.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
  <title>17 legends</title>
 
@@ -2192,21 +2193,15 @@ $("#voting").submit(async function(event){
     </div>
 </div>
 <script>
+// Global chart variable
 let votingChart = null;
 
 function initializeVotingChart() {
-    console.log("Initializing chart...");
-    
     const ctx = document.getElementById('votingChart');
-    if (!ctx) {
-        console.error("Chart canvas not found!");
-        return;
-    }
+    if (!ctx) return console.error("Chart canvas not found!");
 
-    // Destroy existing chart if it exists
-    if (votingChart && typeof votingChart.destroy === 'function') {
-        votingChart.destroy();
-    }
+    // Destroy existing chart if any
+    if (votingChart && typeof votingChart.destroy === 'function') votingChart.destroy();
 
     // Initialize doughnut chart
     votingChart = new Chart(ctx.getContext('2d'), {
@@ -2237,12 +2232,22 @@ function initializeVotingChart() {
                             return `${context.label}: ${value} votes (${percent}%)`;
                         }
                     }
+                },
+                datalabels: {
+                    color: 'white',
+                    font: { weight: 'bold', size: 14 },
+                    formatter: (value, context) => {
+                        const total = context.dataset.data.reduce((a,b) => a+b, 0);
+                        const percent = total ? ((value/total)*100).toFixed(1) : 0;
+                        return `${percent}%`;
+                    }
                 }
             }
-        }
+        },
+        plugins: [ChartDataLabels] // <-- enable datalabels plugin
     });
 
-    // Firestore listener for live votes (count ALL docs)
+    // Firestore listener: count ALL votes every snapshot
     if (window.firebaseApp && window.firebaseApp.onSnapshot) {
         const q = window.firebaseApp.query(
             window.firebaseApp.collection(window.firebaseApp.db, "votes")
@@ -2251,7 +2256,7 @@ function initializeVotingChart() {
         window.firebaseApp.onSnapshot(q, (snapshot) => {
             const counts = {};
 
-            // Count votes from ALL documents
+            // Count all votes
             snapshot.docs.forEach(doc => {
                 const vote = doc.data();
                 if (vote && vote.favoritePlayer) {
@@ -2267,13 +2272,12 @@ function initializeVotingChart() {
                 votingChart.data.labels = players;
                 votingChart.data.datasets[0].data = voteCounts;
 
-                // Generate random pastel colors for each player
+                // Auto-generate pastel colors for each player
                 votingChart.data.datasets[0].backgroundColor = players.map(() => 
                     `hsl(${Math.floor(Math.random()*360)}, 70%, 60%)`
                 );
 
                 votingChart.update();
-                console.log("Chart updated:", players, voteCounts);
             } else {
                 // Reset chart if no votes
                 votingChart.data.labels = ['No votes yet'];
@@ -2289,41 +2293,37 @@ function initializeVotingChart() {
     }
 }
 
-// Make globally accessible
+// Expose globally
 window.initializeVotingChart = initializeVotingChart;
 
 // Initialize chart after DOM ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initializeVotingChart, 2000);
 });
 
-// Touch effect and slide-left animation
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll('#ch').forEach(function(element) {
-        let isTouched = false;
-        element.addEventListener('touchstart', function(event) {
-            event.preventDefault();
-            if (!isTouched) {
-                this.classList.add('touched');
-                isTouched = true;
-            } else {
-                this.classList.remove('touched');
-                isTouched = false;
-            }
+// Optional: slide-left animation & touch effect
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('#ch').forEach(el => {
+        let touched = false;
+        el.addEventListener('touchstart', e => {
+            e.preventDefault();
+            if (!touched) el.classList.add('touched');
+            else el.classList.remove('touched');
+            touched = !touched;
         });
     });
 
-    const chObserver = new IntersectionObserver((entries, observer) => {
+    const observer = new IntersectionObserver((entries, obs) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('slide-left');
-                observer.unobserve(entry.target);
+                obs.unobserve(entry.target);
             }
         });
     });
 
     const ch = document.querySelector('#ch');
-    if (ch) chObserver.observe(ch);
+    if (ch) observer.observe(ch);
 });
 </script>
      <style>
