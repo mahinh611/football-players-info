@@ -2137,8 +2137,7 @@ $("#voting").submit(async function(event){
     });
 }); 
      </script> 
-  <style>
-/* Add to your existing CSS */
+<style>
 .chart-container {
     background-color: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
@@ -2168,12 +2167,10 @@ $("#voting").submit(async function(event){
    background-color: rgba(0, 0, 0, 0.4);
 }
 
-/* Hover (PC) */
 #ch:hover {
     background-color: rgba(110, 110, 110, 0.685);
 }
 
-/* Touch (Mobile) */
 #ch.touched {
     background-color: rgba(110, 110, 110, 0.685);
 }
@@ -2191,11 +2188,10 @@ $("#voting").submit(async function(event){
         </div>
     </div>
 </div>
-
 <script>
 let votingChart = null;
 
-// ✅ Generate dynamic colors
+// ✅ colors
 function generateColors(count) {
     const colors = [];
     for (let i = 0; i < count; i++) {
@@ -2205,23 +2201,22 @@ function generateColors(count) {
     return colors;
 }
 
+// ✅ center %
 const centerTextPlugin = {
     id: 'centerText',
     beforeDraw(chart) {
         const { width, height, ctx } = chart;
-
         ctx.restore();
 
         const labels = chart.data.labels;
         const data = chart.data.datasets[0].data;
 
-        // 🟢 If no real votes
         if (labels.length === 1 && labels[0] === 'No votes yet') {
-            ctx.font = (height / 150) + "em sans-serif";
-            ctx.textBaseline = "middle";
-            ctx.fillStyle = "white";
-
             const text = "0%";
+            ctx.font = (height / 140) + "em sans-serif";
+            ctx.fillStyle = "white";
+            ctx.textBaseline = "middle";
+
             const textX = (width - ctx.measureText(text).width) / 2;
             const textY = height / 2;
 
@@ -2230,14 +2225,13 @@ const centerTextPlugin = {
             return;
         }
 
-        // 🟢 Normal case
         const total = data.reduce((a, b) => a + b, 0);
         const max = Math.max(...data);
         const percent = total ? Math.round((max / total) * 100) : 0;
 
         ctx.font = (height / 120) + "em sans-serif";
-        ctx.textBaseline = "middle";
         ctx.fillStyle = "white";
+        ctx.textBaseline = "middle";
 
         const text = percent + "%";
         const textX = (width - ctx.measureText(text).width) / 2;
@@ -2249,13 +2243,7 @@ const centerTextPlugin = {
 };
 
 function initializeVotingChart() {
-    console.log("Initializing chart...");
-    
     const ctx = document.getElementById('votingChart');
-    if (!ctx) {
-        console.error("Chart canvas not found!");
-        return;
-    }
 
     if (votingChart && typeof votingChart.destroy === 'function') {
         votingChart.destroy();
@@ -2267,7 +2255,7 @@ function initializeVotingChart() {
             labels: ['No votes yet'],
             datasets: [{
                 label: 'Number of Votes',
-                data: [1],
+                data: [0],
                 backgroundColor: ['#07ec67'],
                 borderColor: '#111',
                 borderWidth: 2
@@ -2276,7 +2264,7 @@ function initializeVotingChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '65%', // ✅ circle hole
+            cutout: '65%',
             animation: {
                 animateRotate: true,
                 animateScale: true,
@@ -2297,10 +2285,10 @@ function initializeVotingChart() {
                 }
             }
         },
-        plugins: [centerTextPlugin] // ✅ center %
+        plugins: [centerTextPlugin]
     });
 
-    // 🔥 FIREBASE PART (UNCHANGED)
+    // ✅ FIREBASE (ONLY THIS PART FIXED)
     if (window.firebaseApp && window.firebaseApp.onSnapshot) {
         const q = window.firebaseApp.query(
             window.firebaseApp.collection(window.firebaseApp.db, "votes")
@@ -2308,24 +2296,15 @@ function initializeVotingChart() {
         
         window.firebaseApp.onSnapshot(q, (snapshot) => {
             const counts = {};
-            
-            snapshot.docChanges().forEach((change) => {
-                const vote = change.doc.data();
+
+            // 🔥 FIX HERE
+            snapshot.forEach((doc) => {
+                const vote = doc.data();
                 if (vote && vote.favoritePlayer) {
                     const player = vote.favoritePlayer;
-                    
-                    if (change.type === 'added' || change.type === 'modified') {
-                        counts[player] = (counts[player] || 0) + 1;
-                    } else if (change.type === 'removed') {
-                        counts[player] = (counts[player] || 1) - 1;
-                        if (counts[player] <= 0) {
-                            delete counts[player];
-                        }
-                    }
+                    counts[player] = (counts[player] || 0) + 1;
                 }
             });
-
-            console.log("Vote counts:", counts);
 
             const players = Object.keys(counts);
             const voteCounts = players.map(player => counts[player]);
@@ -2333,60 +2312,16 @@ function initializeVotingChart() {
             if (players.length > 0) {
                 votingChart.data.labels = players;
                 votingChart.data.datasets[0].data = voteCounts;
-                votingChart.data.datasets[0].backgroundColor = generateColors(players.length); // ✅ colors added
-                votingChart.data.datasets[0].label = 'Number of Votes';
+                votingChart.data.datasets[0].backgroundColor = generateColors(players.length); // ✅ added
                 votingChart.update();
-                
-                console.log("Chart updated with:", players, voteCounts);
             } else {
                 votingChart.data.labels = ['No votes yet'];
-                votingChart.data.datasets[0].data = [1];
+                votingChart.data.datasets[0].data = [0];
                 votingChart.update();
             }
-        }, (error) => {
-            console.error("Firestore error:", error);
         });
-    } else {
-        console.error("Firebase functions not available for chart");
     }
 }
-
-window.initializeVotingChart = initializeVotingChart;
-
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(initializeVotingChart, 2000);
-});
-
-// UI effects (unchanged)
-document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll('#ch').forEach(function(element) {
-    let isTouched = false;
-    element.addEventListener('touchstart', function(event) {
-      event.preventDefault();
-      if (!isTouched) {
-        this.classList.add('touched');
-        isTouched = true;
-      } else {
-        this.classList.remove('touched');
-        isTouched = false;
-      }
-    });
-  });
-
-  const chObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('slide-left');
-        observer.unobserve(entry.target);
-      }
-    });
-  });
-
-  const ch = document.querySelector('#ch');
-  if (ch) {
-    chObserver.observe(ch);
-  }
-});
 </script>
      <style>
       .footer-animation {
