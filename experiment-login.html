@@ -363,7 +363,7 @@
       <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
         import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
-        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider, signOut, signInWithRedirect } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
+        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider, signOut } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
         import { getFirestore, collection, query, where, getDoc, getDocs, doc, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
    
         // Initialize Firebase
@@ -375,26 +375,6 @@
   provider: new ReCaptchaV3Provider('6LdpeVYqAAAAAA2i5yEtBFiVV3cBS9WCAin8LK3w'),
   isTokenAutoRefreshEnabled: true
 });  
-
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        console.log("User logged in:", user.email);
-
-        localStorage.setItem("userEmail", user.email);
-
-        // Redirect ONLY if on login/signup pages
-        if (
-            window.location.pathname.includes("experiment-login.html") ||
-            window.location.pathname.includes("experiment-signup.html")
-        ) {
-            window.location.href = "index.html";
-        }
-
-    } else {
-        console.log("No user logged in");
-    }
-});
-
         // Function to validate email format
         function isValidEmail(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -475,7 +455,7 @@ async function loginWithGoogle(event) {
     event.preventDefault();
 
     try {
-        const result = await signInWithRedirect(auth, provider);
+        const result = await signInWithPopup(auth, provider);
         const user = result.user;
 
         localStorage.setItem("userEmail", user.email);
