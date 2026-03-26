@@ -362,7 +362,7 @@ function enhancedSanitize(input) {
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
 import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
-import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, deleteUser, signOut, getRedirectResult } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, deleteUser, signOut } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
 import { getFirestore, doc, deleteDoc, collection, addDoc, onSnapshot, query,setDoc,updateDoc,getDocs,where, getDoc } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
 
 // Initialize Firebase
@@ -374,23 +374,6 @@ const db = getFirestore(app);
   provider: new ReCaptchaV3Provider('6LdpeVYqAAAAAA2i5yEtBFiVV3cBS9WCAin8LK3w'),
   isTokenAutoRefreshEnabled: true
 });
-
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-function login() {
-  if (isMobile) {
-    // Redirect login for mobile
-    signInWithRedirect(auth, provider);
-  } else {
-    // Popup login for desktop
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        console.log("Signed in (desktop):", result.user);
-      })
-      .catch((error) => console.error(error));
-  }
-}
-
 
 // Update the global Firebase functions
 window.firebaseApp = {
