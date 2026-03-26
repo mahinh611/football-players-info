@@ -2138,6 +2138,7 @@ $("#voting").submit(async function(event){
 }); 
      </script> 
 <style>
+/* Card and chart styles */
 .chart-container {
     background-color: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
@@ -2146,33 +2147,29 @@ $("#voting").submit(async function(event){
 
 #votingChart {
     color: white;
+    display: none; /* hide until loaded */
+}
+
+#votingChart.loaded {
+    display: block;
+}
+
+#ch {
+   background-color: rgba(0, 0, 0, 0.4);
+}
+
+#ch:hover,
+#ch.touched {
+    background-color: rgba(110, 110, 110, 0.685);
 }
 
 @keyframes slideLeft {
-    from {
-      transform: translateX(-100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
 
 .slide-left {
     animation: slideLeft 2s ease forwards;
-}
-
-#ch{
-   background-color: rgba(0, 0, 0, 0.4);
-}
-
-#ch:hover {
-    background-color: rgba(110, 110, 110, 0.685);
-}
-
-#ch.touched {
-    background-color: rgba(110, 110, 110, 0.685);
 }
 </style>
 
@@ -2188,10 +2185,11 @@ $("#voting").submit(async function(event){
         </div>
     </div>
 </div>
+
 <script>
 let votingChart = null;
 
-// ✅ colors
+// Generate distinct colors
 function generateColors(count) {
     const colors = [];
     for (let i = 0; i < count; i++) {
@@ -2201,7 +2199,7 @@ function generateColors(count) {
     return colors;
 }
 
-// ✅ center %
+// Center percentage plugin
 const centerTextPlugin = {
     id: 'centerText',
     beforeDraw(chart) {
@@ -2211,29 +2209,18 @@ const centerTextPlugin = {
         const labels = chart.data.labels;
         const data = chart.data.datasets[0].data;
 
-        if (labels.length === 1 && labels[0] === 'No votes yet') {
-            const text = "0%";
-            ctx.font = (height / 140) + "em sans-serif";
-            ctx.fillStyle = "white";
-            ctx.textBaseline = "middle";
-
-            const textX = (width - ctx.measureText(text).width) / 2;
-            const textY = height / 2;
-
-            ctx.fillText(text, textX, textY);
-            ctx.save();
-            return;
+        let text = '0%';
+        if (!(labels.length === 1 && labels[0] === 'No votes yet')) {
+            const total = data.reduce((a, b) => a + b, 0);
+            const max = Math.max(...data);
+            const percent = total ? Math.round((max / total) * 100) : 0;
+            text = percent + "%";
         }
-
-        const total = data.reduce((a, b) => a + b, 0);
-        const max = Math.max(...data);
-        const percent = total ? Math.round((max / total) * 100) : 0;
 
         ctx.font = (height / 120) + "em sans-serif";
         ctx.fillStyle = "white";
         ctx.textBaseline = "middle";
 
-        const text = percent + "%";
         const textX = (width - ctx.measureText(text).width) / 2;
         const textY = height / 2;
 
@@ -2242,15 +2229,17 @@ const centerTextPlugin = {
     }
 };
 
+// Initialize chart and Firebase listener
 function initializeVotingChart() {
     const ctx = document.getElementById('votingChart');
 
+    // Destroy previous chart if exists
     if (votingChart && typeof votingChart.destroy === 'function') {
         votingChart.destroy();
     }
 
     votingChart = new Chart(ctx.getContext('2d'), {
-        type: 'doughnut', // ✅ changed
+        type: 'doughnut',
         data: {
             labels: ['No votes yet'],
             datasets: [{
@@ -2265,63 +2254,53 @@ function initializeVotingChart() {
             responsive: true,
             maintainAspectRatio: false,
             cutout: '65%',
-            animation: {
-                animateRotate: true,
-                animateScale: true,
-                duration: 1000
-            },
+            animation: { animateRotate: true, animateScale: true, duration: 1000 },
             plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.parsed} votes`; // ✅ fixed
-                        }
-                    }
-                }
+                legend: { labels: { color: 'white' } },
+                tooltip: { callbacks: { label: ctx => `${ctx.parsed} votes` } }
             }
         },
         plugins: [centerTextPlugin]
     });
 
-    // ✅ FIREBASE (ONLY THIS PART FIXED)
-    if (window.firebaseApp && window.firebaseApp.onSnapshot) {
-        const q = window.firebaseApp.query(
-            window.firebaseApp.collection(window.firebaseApp.db, "votes")
-        );
-        
-        window.firebaseApp.onSnapshot(q, (snapshot) => {
-            const counts = {};
+    // Show chart once initialized
+    ctx.classList.add('loaded');
 
-            // 🔥 FIX HERE
-            snapshot.forEach((doc) => {
-                const vote = doc.data();
-                if (vote && vote.favoritePlayer) {
-                    const player = vote.favoritePlayer;
-                    counts[player] = (counts[player] || 0) + 1;
-                }
-            });
-
-            const players = Object.keys(counts);
-            const voteCounts = players.map(player => counts[player]);
-
-            if (players.length > 0) {
-                votingChart.data.labels = players;
-                votingChart.data.datasets[0].data = voteCounts;
-                votingChart.data.datasets[0].backgroundColor = generateColors(players.length); // ✅ added
-                votingChart.update();
-            } else {
-                votingChart.data.labels = ['No votes yet'];
-                votingChart.data.datasets[0].data = [0];
-                votingChart.update();
+    // 🔥 Firebase listener
+    const votesCol = firebaseApp.collection(firebaseApp.db, "votes");
+    firebaseApp.onSnapshot(votesCol, snapshot => {
+        const counts = {};
+        snapshot.forEach(doc => {
+            const vote = doc.data();
+            if (vote && vote.favoritePlayer) {
+                const player = vote.favoritePlayer;
+                counts[player] = (counts[player] || 0) + 1;
             }
         });
-    }
+
+        const players = Object.keys(counts);
+        const voteCounts = players.map(p => counts[p]);
+
+        if (players.length > 0) {
+            votingChart.data.labels = players;
+            votingChart.data.datasets[0].data = voteCounts;
+            votingChart.data.datasets[0].backgroundColor = generateColors(players.length);
+        } else {
+            votingChart.data.labels = ['No votes yet'];
+            votingChart.data.datasets[0].data = [0];
+            votingChart.data.datasets[0].backgroundColor = ['#07ec67'];
+        }
+
+        votingChart.update();
+    });
 }
+
+// Wait for Firebase auth state before initializing chart
+document.addEventListener("DOMContentLoaded", () => {
+    firebase.auth().onAuthStateChanged(user => {
+        initializeVotingChart();
+    });
+});
 </script>
      <style>
       .footer-animation {
