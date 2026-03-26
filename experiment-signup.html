@@ -512,56 +512,33 @@ setTimeout(() => {
         }
     }
 
-function isMobile() {
-    return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-}
-   
-async function loginWithGoogle(event) {
-    event.preventDefault();
-
-    try {
-        let user;
-
-        if (isMobile()) {
-            await signInWithRedirect(auth, provider);
-            return; // 🚨 important: stop execution here
-        } else {
-            const result = await signInWithPopup(auth, provider);
-            user = result.user;
+            // Function to handle Google Sign-In
+        async function loginWithGoogle(event) {
+            event.preventDefault();
+            try {
+                const result = await signInWithRedirect(auth, provider);
+                const user = result.user;
+                localStorage.setItem("userEmail", user.email);
+    
+                const userDoc = doc(db, "users", user.uid);
+                const userSnapshot = await getDoc(userDoc);
+    
+                if (userSnapshot.exists()) {
+                    window.location.href = "index.html";
+                } else {
+                    await setDoc(userDoc, { 
+                        email: user.email, 
+                        signupTime: Date.now(), 
+                        emailVerified: true, 
+                        signInMethod: 'google', 
+                        userId: user.uid 
+                    });
+                    window.location.href = "index.html";
+                }
+            } catch (error) {
+                alert("Failed to sign up with Google: " + error.message);
+            }
         }
-
-        localStorage.setItem("userEmail", user.email);
-
-        const userDocRef = doc(db, "users", user.uid);
-        const userSnapshot = await getDoc(userDocRef);
-
-        if (!userSnapshot.exists()) {
-            await setDoc(userDocRef, {
-                email: user.email,
-                userId: user.uid,
-                emailVerified: true,
-                signInMethod: "google",
-                signupTime: Date.now()
-            });
-        }
-
-        window.location.href = "index.html";
-
-    } catch (error) {
-        alert("Google sign-in failed: " + error.message);
-    }
-}
-
-auth.onAuthStateChanged(async (user) => {
-    if (
-        user &&
-        user.providerData[0].providerId === "google.com" &&
-        !window.location.href.includes("index.html")
-    ) {
-        localStorage.setItem("userEmail", user.email);
-        window.location.href = "index.html";
-    }
-});
 
     // Periodic check for email verification
     function checkEmailVerifiedPeriodically() {

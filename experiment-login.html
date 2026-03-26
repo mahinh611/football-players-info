@@ -450,23 +450,13 @@ async function sendPasswordReset() {
     }
 }
 
-function isMobile() {
-    return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-}
    
 async function loginWithGoogle(event) {
     event.preventDefault();
 
     try {
-        let user;
-
-        if (isMobile()) {
-            await signInWithRedirect(auth, provider);
-            return; // 🚨 important: stop execution here
-        } else {
-            const result = await signInWithPopup(auth, provider);
-            user = result.user;
-        }
+        const result = await signInWithRedirect(auth, provider);
+        const user = result.user;
 
         localStorage.setItem("userEmail", user.email);
 
@@ -489,17 +479,6 @@ async function loginWithGoogle(event) {
         alert("Google sign-in failed: " + error.message);
     }
 }
-
-auth.onAuthStateChanged(async (user) => {
-    if (
-        user &&
-        user.providerData[0].providerId === "google.com" &&
-        !window.location.href.includes("index.html")
-    ) {
-        localStorage.setItem("userEmail", user.email);
-        window.location.href = "index.html";
-    }
-});
 
    
         // Wait for the DOM to load before attaching event listeners
