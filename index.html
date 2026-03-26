@@ -2210,7 +2210,7 @@ function initializeVotingChart() {
 
     // Initialize doughnut chart
     votingChart = new Chart(ctx.getContext('2d'), {
-        type: 'doughnut', // Doughnut chart
+        type: 'doughnut',
         data: {
             labels: ['No votes yet'],
             datasets: [{
@@ -2242,7 +2242,7 @@ function initializeVotingChart() {
         }
     });
 
-    // Firestore listener for live votes
+    // Firestore listener for live votes (count ALL docs)
     if (window.firebaseApp && window.firebaseApp.onSnapshot) {
         const q = window.firebaseApp.query(
             window.firebaseApp.collection(window.firebaseApp.db, "votes")
@@ -2251,17 +2251,12 @@ function initializeVotingChart() {
         window.firebaseApp.onSnapshot(q, (snapshot) => {
             const counts = {};
 
-            snapshot.docChanges().forEach((change) => {
-                const vote = change.doc.data();
+            // Count votes from ALL documents
+            snapshot.docs.forEach(doc => {
+                const vote = doc.data();
                 if (vote && vote.favoritePlayer) {
                     const player = vote.favoritePlayer;
-
-                    if (change.type === 'added' || change.type === 'modified') {
-                        counts[player] = (counts[player] || 0) + 1;
-                    } else if (change.type === 'removed') {
-                        counts[player] = (counts[player] || 1) - 1;
-                        if (counts[player] <= 0) delete counts[player];
-                    }
+                    counts[player] = (counts[player] || 0) + 1;
                 }
             });
 
