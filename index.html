@@ -2295,11 +2295,15 @@ function initializeVotingChart() {
     });
 }
 
-// Wait for Firebase auth state before initializing chart
 document.addEventListener("DOMContentLoaded", () => {
-    firebase.auth().onAuthStateChanged(user => {
-        initializeVotingChart();
-    });
+    initializeVotingChart(); // chart always shows
+
+    // Optional: track auth if needed
+    if (firebase && firebase.auth) {
+        firebase.auth().onAuthStateChanged(user => {
+            console.log("User status:", user);
+        });
+    }
 });
 </script>
      <style>
