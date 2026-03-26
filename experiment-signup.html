@@ -372,7 +372,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
-    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, getDocs, query, collection, where, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
     // Initialize Firebase
@@ -383,12 +383,6 @@
     initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider('6LdpeVYqAAAAAA2i5yEtBFiVV3cBS9WCAin8LK3w'),
   isTokenAutoRefreshEnabled: true
-});
-
-getRedirectResult(auth).then((result) => {
-  if (result) {
-    console.log("User logged in:", result.user);
-  }
 });
 
 // ✅ SIMPLE FIRESTORE CLEANUP (This works!)
@@ -522,7 +516,7 @@ setTimeout(() => {
         async function loginWithGoogle(event) {
             event.preventDefault();
             try {
-                const result = await signInWithRedirect(auth, provider);
+                const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 localStorage.setItem("userEmail", user.email);
     
