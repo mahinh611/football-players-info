@@ -363,7 +363,7 @@
       <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
         import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
-        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signInWithRedirect, GoogleAuthProvider, signOut } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
+        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
         import { getFirestore, collection, query, where, getDoc, getDocs, doc, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
    
         // Initialize Firebase
@@ -375,6 +375,13 @@
   provider: new ReCaptchaV3Provider('6LdpeVYqAAAAAA2i5yEtBFiVV3cBS9WCAin8LK3w'),
   isTokenAutoRefreshEnabled: true
 });  
+
+getRedirectResult(auth).then((result) => {
+  if (result) {
+    console.log("User logged in:", result.user);
+  }
+});
+
         // Function to validate email format
         function isValidEmail(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

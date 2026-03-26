@@ -362,7 +362,7 @@ function enhancedSanitize(input) {
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
 import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
-import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signInWithRedirect, GoogleAuthProvider, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, deleteUser, signOut } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signInWithRedirect, getRedirectResult, GoogleAuthProvider, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, deleteUser, signOut } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
 import { getFirestore, doc, deleteDoc, collection, addDoc, onSnapshot, query,setDoc,updateDoc,getDocs,where, getDoc } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
 
 // Initialize Firebase
@@ -390,6 +390,12 @@ window.firebaseApp = {
     query: query,
     where: where
 };
+
+getRedirectResult(auth).then((result) => {
+  if (result) {
+    console.log("User logged in:", result.user);
+  }
+});
 
 // 🔥 SIMPLE TAMPER PROTECTION (No other changes needed)
 (function() {
