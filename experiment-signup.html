@@ -385,6 +385,25 @@
   isTokenAutoRefreshEnabled: true
 });
 
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        console.log("User logged in:", user.email);
+
+        localStorage.setItem("userEmail", user.email);
+
+        // Redirect ONLY if on login/signup pages
+        if (
+            window.location.pathname.includes("experiment-login.html") ||
+            window.location.pathname.includes("experiment-signup.html")
+        ) {
+            window.location.href = "index.html";
+        }
+
+    } else {
+        console.log("No user logged in");
+    }
+});
+
 // ✅ SIMPLE FIRESTORE CLEANUP (This works!)
 async function checkAndCleanExpiredUsers() {
     const user = auth.currentUser;
