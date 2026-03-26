@@ -450,13 +450,23 @@ async function sendPasswordReset() {
     }
 }
 
+function isMobile() {
+    return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+}
    
 async function loginWithGoogle(event) {
     event.preventDefault();
 
     try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
+        let user;
+
+        if (isMobile()) {
+            await signInWithRedirect(auth, provider);
+            return; // 🚨 important: stop execution here
+        } else {
+            const result = await signInWithPopup(auth, provider);
+            user = result.user;
+        }
 
         localStorage.setItem("userEmail", user.email);
 
