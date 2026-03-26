@@ -2138,7 +2138,7 @@ $("#voting").submit(async function(event){
 }); 
      </script> 
   <style>
-    /* Add to your existing CSS */
+/* Add to your existing CSS */
 .chart-container {
     background-color: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
@@ -2149,7 +2149,7 @@ $("#voting").submit(async function(event){
     color: white;
 }
 
-   @keyframes slideLeft {
+@keyframes slideLeft {
     from {
       transform: translateX(-100%);
       opacity: 0;
@@ -2158,28 +2158,28 @@ $("#voting").submit(async function(event){
       transform: translateX(0);
       opacity: 1;
     }
-  }
+}
 
-  .slide-left {
+.slide-left {
     animation: slideLeft 2s ease forwards;
-  }
+}
 
-  #ch{
+#ch{
    background-color: rgba(0, 0, 0, 0.4);
-  }
-    
-    /* Semi-transparent on hover (PC) */
-    #ch:hover {
-        background-color: rgba(110, 110, 110, 0.685);
-    }
-    
-    /* Semi-transparent when touched (Smartphones) */
-    #ch.touched {
-        background-color: rgba(110, 110, 110, 0.685); /* Semi-transparent background */
-    }
+}
 
-    </style>
-     <div class="container mt-5">
+/* Hover (PC) */
+#ch:hover {
+    background-color: rgba(110, 110, 110, 0.685);
+}
+
+/* Touch (Mobile) */
+#ch.touched {
+    background-color: rgba(110, 110, 110, 0.685);
+}
+</style>
+
+<div class="container mt-5">
     <div class="row">
         <div class="col-12">
             <div class="card shadow p-4 rounded-3" id="ch">
@@ -2191,8 +2191,62 @@ $("#voting").submit(async function(event){
         </div>
     </div>
 </div>
+
 <script>
-  let votingChart = null;
+let votingChart = null;
+
+// ✅ Generate dynamic colors
+function generateColors(count) {
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+        const hue = (i * 360 / count);
+        colors.push(`hsl(${hue}, 70%, 50%)`);
+    }
+    return colors;
+}
+
+const centerTextPlugin = {
+    id: 'centerText',
+    beforeDraw(chart) {
+        const { width, height, ctx } = chart;
+
+        ctx.restore();
+
+        const labels = chart.data.labels;
+        const data = chart.data.datasets[0].data;
+
+        // 🟢 If no real votes
+        if (labels.length === 1 && labels[0] === 'No votes yet') {
+            ctx.font = (height / 150) + "em sans-serif";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "white";
+
+            const text = "0%";
+            const textX = (width - ctx.measureText(text).width) / 2;
+            const textY = height / 2;
+
+            ctx.fillText(text, textX, textY);
+            ctx.save();
+            return;
+        }
+
+        // 🟢 Normal case
+        const total = data.reduce((a, b) => a + b, 0);
+        const max = Math.max(...data);
+        const percent = total ? Math.round((max / total) * 100) : 0;
+
+        ctx.font = (height / 120) + "em sans-serif";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "white";
+
+        const text = percent + "%";
+        const textX = (width - ctx.measureText(text).width) / 2;
+        const textY = height / 2;
+
+        ctx.fillText(text, textX, textY);
+        ctx.save();
+    }
+};
 
 function initializeVotingChart() {
     console.log("Initializing chart...");
@@ -2203,26 +2257,31 @@ function initializeVotingChart() {
         return;
     }
 
-    // Destroy existing chart if it exists and is a valid Chart instance
     if (votingChart && typeof votingChart.destroy === 'function') {
         votingChart.destroy();
     }
 
     votingChart = new Chart(ctx.getContext('2d'), {
-        type: 'bar',
+        type: 'doughnut', // ✅ changed
         data: {
             labels: ['No votes yet'],
             datasets: [{
                 label: 'Number of Votes',
-                data: [0],
-                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
+                data: [1],
+                backgroundColor: ['#07ec67'],
+                borderColor: '#111',
+                borderWidth: 2
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            cutout: '65%', // ✅ circle hole
+            animation: {
+                animateRotate: true,
+                animateScale: true,
+                duration: 1000
+            },
             plugins: {
                 legend: {
                     labels: {
@@ -2232,31 +2291,16 @@ function initializeVotingChart() {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return `${context.parsed.y} votes`;
+                            return `${context.parsed} votes`; // ✅ fixed
                         }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: 'white',
-                        callback: function(value) {
-                            return value;
-                        }
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: 'white'
                     }
                 }
             }
-        }
+        },
+        plugins: [centerTextPlugin] // ✅ center %
     });
 
-    // Listen for votes from Firestore
+    // 🔥 FIREBASE PART (UNCHANGED)
     if (window.firebaseApp && window.firebaseApp.onSnapshot) {
         const q = window.firebaseApp.query(
             window.firebaseApp.collection(window.firebaseApp.db, "votes")
@@ -2283,21 +2327,20 @@ function initializeVotingChart() {
 
             console.log("Vote counts:", counts);
 
-            // Update chart
             const players = Object.keys(counts);
             const voteCounts = players.map(player => counts[player]);
 
             if (players.length > 0) {
                 votingChart.data.labels = players;
                 votingChart.data.datasets[0].data = voteCounts;
+                votingChart.data.datasets[0].backgroundColor = generateColors(players.length); // ✅ colors added
                 votingChart.data.datasets[0].label = 'Number of Votes';
                 votingChart.update();
                 
                 console.log("Chart updated with:", players, voteCounts);
             } else {
-                // Reset chart if no votes
                 votingChart.data.labels = ['No votes yet'];
-                votingChart.data.datasets[0].data = [0];
+                votingChart.data.datasets[0].data = [1];
                 votingChart.update();
             }
         }, (error) => {
@@ -2308,20 +2351,18 @@ function initializeVotingChart() {
     }
 }
 
-// Make function globally available
 window.initializeVotingChart = initializeVotingChart;
 
-// Initialize chart when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initializeVotingChart, 2000);
 });
 
+// UI effects (unchanged)
 document.addEventListener("DOMContentLoaded", function () {
-  // Touch effect
   document.querySelectorAll('#ch').forEach(function(element) {
-    let isTouched = false; // Track touch state for each element
+    let isTouched = false;
     element.addEventListener('touchstart', function(event) {
-      event.preventDefault(); // Prevents accidental double triggers
+      event.preventDefault();
       if (!isTouched) {
         this.classList.add('touched');
         isTouched = true;
@@ -2332,24 +2373,21 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Intersection Observer to detect when ch becomes visible
   const chObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        // When ch becomes visible, add a class to trigger animation
         entry.target.classList.add('slide-left');
         observer.unobserve(entry.target);
       }
     });
   });
 
-  // Observe the ch element
   const ch = document.querySelector('#ch');
   if (ch) {
     chObserver.observe(ch);
   }
 });
-  </script>
+</script>
      <style>
       .footer-animation {
         opacity: 0;
