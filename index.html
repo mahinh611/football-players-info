@@ -404,7 +404,7 @@ window.firebaseApp = {
             const user = auth.currentUser;
             
             // If Firebase user doesn't match localStorage, clear tampered data
-            if (!user || user.email !== value) {
+            if (user && user.email !== value) {
                 console.warn('Tampered localStorage detected - clearing invalid data');
                 this.removeItem('userEmail');
                 this.removeItem('popupShown');
