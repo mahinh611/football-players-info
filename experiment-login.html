@@ -490,6 +490,17 @@ async function loginWithGoogle(event) {
     }
 }
 
+auth.onAuthStateChanged(async (user) => {
+    if (
+        user &&
+        user.providerData[0].providerId === "google.com" &&
+        !window.location.href.includes("index.html")
+    ) {
+        localStorage.setItem("userEmail", user.email);
+        window.location.href = "index.html";
+    }
+});
+
    
         // Wait for the DOM to load before attaching event listeners
         document.addEventListener("DOMContentLoaded", () => {
