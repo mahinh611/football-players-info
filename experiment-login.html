@@ -490,6 +490,21 @@ async function loginWithGoogle(event) {
             document.getElementById('sendResetLink').addEventListener("click", sendPasswordReset);
             document.getElementById('google-signin').addEventListener("click", loginWithGoogle);
         });
+
+        document.addEventListener("DOMContentLoaded", () => {
+    const auth = window.firebaseApp.auth;
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            console.log("✅ Firebase says logged in");
+            // OPTIONAL: sync localStorage
+            localStorage.setItem("userEmail", user.email);
+        } else {
+            console.log("❌ Firebase says NOT logged in");
+            // clear fake login
+            localStorage.removeItem("userEmail");
+        }
+    });
+});
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
