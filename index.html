@@ -469,11 +469,24 @@ async function performFirestoreCleanup(user) {
     }
 }
 
-// ✅ START THE CLEANUP SYSTEM
-// Run check when auth state changes
-auth.onAuthStateChanged((user) => {
+auth.onAuthStateChanged(async (user) => {
     if (user) {
+        // 1️⃣ Cleanup system
         checkAndCleanExpiredUsers();
+
+        // 2️⃣ Email verification check
+        if (user.emailVerified) {
+            // Reload user to ensure Firebase has latest info
+            await user.reload();
+
+            // Force refresh ID token so Firestore rules see email_verified = true
+            await user.getIdToken(true);
+
+            console.log("✅ ID token refreshed for verified user");
+        } else {
+            console.log("Auth state changed - unverified user detected");
+            autoCheckEmailVerification();
+        }
     }
 });
 
@@ -1051,13 +1064,7 @@ async function autoCheckEmailVerification() {
     }
 }
 
-// Use Firebase auth state observer instead of DOMContentLoaded
-auth.onAuthStateChanged((user) => {
-    if (user && !user.emailVerified) {
-        console.log("Auth state changed - unverified user detected");
-        autoCheckEmailVerification();
-    }
-});
+
     </script>
                  
   <style>
@@ -2028,15 +2035,6 @@ $("#voting").submit(async function(event){
     if (!user) {
         alert('You must be logged in to vote.');
         return;
-    }
-    
-    // 🔥 ADD THIS LINE HERE
-    await user.reload();
-
-    // ✅ THEN check verification
-    if (!user.emailVerified) {
-    alert("Please verify your email before voting.");
-    return;
     }
 
     // Document reference MUST be user.uid to satisfy Firestore rules

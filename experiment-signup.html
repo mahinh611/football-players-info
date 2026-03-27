@@ -436,11 +436,24 @@ async function performFirestoreCleanup(user) {
     }
 }
 
-// ✅ START THE CLEANUP SYSTEM
-// Run check when auth state changes
-auth.onAuthStateChanged((user) => {
+auth.onAuthStateChanged(async (user) => {
     if (user) {
+        // 1️⃣ Cleanup system
         checkAndCleanExpiredUsers();
+
+        // 2️⃣ Email verification check
+        if (user.emailVerified) {
+            // Reload user to ensure Firebase has latest info
+            await user.reload();
+
+            // Force refresh ID token so Firestore rules see email_verified = true
+            await user.getIdToken(true);
+
+            console.log("✅ ID token refreshed for verified user");
+        } else {
+            console.log("Auth state changed - unverified user detected");
+            autoCheckEmailVerification();
+        }
     }
 });
 
