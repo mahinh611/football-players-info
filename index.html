@@ -1873,26 +1873,26 @@ video.background-video {
             <form id="voting">
               <p>Your Name<br><input class="rounded" type="text" name="name" id="nameInput" /></p>
               <p>Who's your favorite?</p>
-              <input list="players" class="rounded" name="my-favorite" id="favoriteInput" placeholder="Search...">
-              <datalist id="players">
-                <option value="Lionel Messi">
-                <option value="Cristiano Ronaldo">
-                <option value="Neymar Junior">
-                <option value="Kylian Mbappé">
-                <option value="Mohamed Salah">
-                <option value="Harry Kane">
-                <option value="Luis Suárez">
-                <option value="Mesut Özil">
-                <option value="Achraf Hakimi">
-                <option value="Antoine Griezmann">
-                <option value="Robert Lewandowski">
-                <option value="Zlatan Ibrahimović">
-                <option value="Erling Haaland">
-                <option value="Luka Modrić">
-                <option value="David Beckham">
-                <option value="Son Heung-min">
-                <option value="Virgil van Dijk">
-              </datalist>
+             <select id="favoriteInput" required>
+            <option value="">Select a player</option>
+            <option value="Messi">Messi</option>
+            <option value="Ronaldo">Ronaldo</option>
+            <option value="Neymar">Neymar</option>
+            <option value="Mbappé">Mbappé</option>
+            <option value="Salah">Salah</option>
+            <option value="Kane">Kane</option>
+            <option value="Suárez">Suárez</option>
+            <option value="Özil">Özil</option>
+            <option value="Hakimi">Hakimi</option>
+            <option value="Antoine">Antoine</option>
+            <option value="Robert">Robert</option>
+            <option value="Zlatan">Zlatan</option>
+            <option value="Haaland">Haaland</option>
+            <option value="Modrić">Modrić</option>
+            <option value="David">David</option>
+            <option value="Heung">Heung</option>
+            <option value="Virgil">Virgil</option>
+            </select>
               <p>Why is he your favorite?<br><textarea class="rounded" name="why-favorite" rows="7" cols="29" id="write-area"></textarea></p>
               <button class="rounded" type="submit" id="submitBtn">Submit</button>
             </form>
@@ -2037,6 +2037,19 @@ $("#voting").submit(async function(event){
         return;
     }
 
+    const allowedPlayers = [
+    "Messi","Ronaldo","Neymar","Mbappé","Salah","Kane","Suárez",
+    "Özil","Hakimi","Antoine","Robert","Zlatan","Haaland",
+    "Modrić","David","Heung","Virgil"
+    ];
+
+    const selectedPlayer = document.getElementById("favoriteInput").value;
+
+    if (!allowedPlayers.includes(selectedPlayer)) {
+    alert("Invalid player selected!");
+    return;
+    }
+    
     // Document reference MUST be user.uid to satisfy Firestore rules
     const voteDocRef = window.firebaseApp.doc(
         window.firebaseApp.collection(window.firebaseApp.db, "votes"),
