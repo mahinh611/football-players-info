@@ -2023,7 +2023,7 @@ $("#voting").submit(async function(event){
     event.preventDefault();
 
     const nameInput = enhancedSanitize($('#voting-form input[name="name"]').val()).trim();
-    const favoriteInput = enhancedSanitize($('#voting-form input[name="my-favorite"]').val()).trim();
+    const favoriteInput = enhancedSanitize($('#favoriteInput').val()).trim();
     const whyFavorite = enhancedSanitize($('#voting-form textarea[name="why-favorite"]').val()).trim();
 
     if (!nameInput || !favoriteInput || !whyFavorite) {
@@ -2049,7 +2049,7 @@ $("#voting").submit(async function(event){
     alert("Invalid player selected!");
     return;
     }
-    
+
     // Document reference MUST be user.uid to satisfy Firestore rules
     const voteDocRef = window.firebaseApp.doc(
         window.firebaseApp.collection(window.firebaseApp.db, "votes"),
