@@ -4,13 +4,12 @@
 
 <!-- 🔒 CONTENT SECURITY POLICY -->
 <meta http-equiv="Content-Security-Policy" content="
-default-src 'self';
-script-src 'self' https://www.gstatic.com https://www.googleapis.com https://cdn.jsdelivr.net https://code.jquery.com https://kit.fontawesome.com 'unsafe-inline';
-style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline';
-img-src 'self' data: https:;
-font-src 'self' https://kit.fontawesome.com https://fonts.gstatic.com;
-connect-src 'self' https://firestore.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://firebase.googleapis.com;
-frame-ancestors 'none';
+default-src 'self' https:;
+script-src 'self' 'unsafe-inline' 'unsafe-eval' https:;
+style-src 'self' 'unsafe-inline' https:;
+img-src 'self' data: blob: https:;
+font-src 'self' https: data:;
+connect-src 'self' https: blob:;
 object-src 'none';
 base-uri 'self';
 form-action 'self';
