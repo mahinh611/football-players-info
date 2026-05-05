@@ -356,13 +356,13 @@ if (window.top !== window.self) {
             </div>            
           </div>
           <div class="input-group mb-3">
-            <button onclick="loginUser(event)" class="btn btn-lg btn-primary w-100 fs-6" id="login">Login</button>
+            <button class="btn btn-lg btn-primary w-100 fs-6" id="login">Login</button>
           </div>
           <div style="text-align: center" id="or">
             <p>or</p>
           </div>
           <div class="input-group mb-3">
-            <button onclick="loginWithGoogle(event)" class="btn btn-lg btn-light w-100 fs-6" id="google-signin"><img src="experiment-images/google.png" style="width: 20px" class="me-2" alt="Loading...">Sign In With Google</button>
+            <button class="btn btn-lg btn-light w-100 fs-6" id="google-signin"><img src="experiment-images/google.png" style="width: 20px" class="me-2" alt="Loading...">Sign In With Google</button>
           </div>
         </div>
       </div>
@@ -416,7 +416,7 @@ if (window.top !== window.self) {
         }
    
 async function loginUser(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
     if (!email || !password) {
@@ -486,7 +486,7 @@ async function sendPasswordReset() {
 
    
 async function loginWithGoogle(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
 
     try {
         const result = await signInWithPopup(auth, provider);

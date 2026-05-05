@@ -383,7 +383,7 @@ if (window.top !== window.self) {
             <p>or</p>
           </div>
           <div class="input-group mb-3">
-            <button onclick="loginWithGoogle(event)" class="btn btn-lg btn-light w-100 fs-6" id="google-signin">
+            <button class="btn btn-lg btn-light w-100 fs-6" id="google-signin">
               <img src="experiment-images/google.png" style="width: 20px" class="me-2" alt="Google Icon">Sign Up With Google
             </button>
             
@@ -555,7 +555,7 @@ setTimeout(() => {
 
             // Function to handle Google Sign-In
         async function loginWithGoogle(event) {
-            event.preventDefault();
+    if (event) event.preventDefault();
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
