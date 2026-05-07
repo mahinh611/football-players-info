@@ -260,6 +260,19 @@ header {
   }
 }
 
+/* Delay all animations until splash is gone */
+body:not(.splash-done) .slide-left-view,
+body:not(.splash-done) .slide-in-pills,
+body:not(.splash-done) .slide-in-tab-content,
+body:not(.splash-done) #voting-form,
+body:not(.splash-done) #login-card,
+body:not(.splash-done) .profile-card,
+body:not(.splash-done) footer,
+body:not(.splash-done) #table tr {
+    animation: none !important;
+    opacity: 0 !important;
+}
+
 
 
 

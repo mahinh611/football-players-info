@@ -888,11 +888,10 @@ footer {
 <script>
 window.addEventListener("load", function () {
     const splash = document.getElementById("splash-screen");
-
     splash.classList.add("fade-out");
-
     setTimeout(() => {
         splash.remove();
+        document.body.classList.add("splash-done");
     }, 500);
 });
 </script>
