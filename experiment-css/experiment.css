@@ -269,6 +269,7 @@ body:not(.splash-done) #login-card,
 body:not(.splash-done) .profile-card,
 body:not(.splash-done) footer,
 body:not(.splash-done) .box-area,
+body:not(.splash-done) .animated-text,
 body:not(.splash-done) #table tr {
     animation: none !important;
     opacity: 0 !important;
