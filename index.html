@@ -217,21 +217,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Initialize the Bootstrap carousel
   var carousel = new bootstrap.Carousel(carouselElement, {
-    interval: 5000 // Set the interval to 5000 milliseconds (5 seconds)
+    interval: 5000
   });
 
   function openPopup() {
     popupOverlay.style.display = 'block';
     popup.style.display = 'block';
-    document.body.classList.add('no-scroll'); // Add no-scroll class to body
-    carousel.cycle(); // Start the carousel
+    document.body.classList.add('no-scroll');
+    carousel.cycle();
   }
 
   function closePopup() {
     popupOverlay.style.display = 'none';
     popup.style.display = 'none';
-    document.body.classList.remove('no-scroll'); // Remove no-scroll class from body
-    carousel.pause(); // Pause the carousel
+    document.body.classList.remove('no-scroll');
+    carousel.pause();
   }
 
   // Event listener to close the popup
@@ -239,13 +239,50 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function checkLoginStatus() {
     const userEmail = localStorage.getItem("userEmail");
-    
+
     // Open popup only if the user is not logged in
     if (!userEmail) {
-      setTimeout(function() {
-        openPopup();
-        localStorage.setItem("popupShown", "true"); // Mark the popup as shown
-      }, 15000); // Show popup after 15 seconds
+
+      // ✅ Start timer ONLY after splash screen disappears
+      const splashScreen = document.getElementById("splash-screen");
+
+      function startAdTimer() {
+        setTimeout(function () {
+          openPopup();
+          localStorage.setItem("popupShown", "true");
+        }, 15000); // 15 seconds AFTER splash screen is gone
+      }
+
+      if (splashScreen) {
+
+        // If splash already hidden
+        if (
+          splashScreen.classList.contains("fade-out") ||
+          splashScreen.style.display === "none"
+        ) {
+          startAdTimer();
+        } else {
+
+          // Watch splash screen changes
+          const observer = new MutationObserver(() => {
+            if (
+              splashScreen.classList.contains("fade-out") ||
+              splashScreen.style.display === "none"
+            ) {
+              startAdTimer();
+              observer.disconnect();
+            }
+          });
+
+          observer.observe(splashScreen, {
+            attributes: true,
+            attributeFilter: ['class', 'style']
+          });
+        }
+
+      } else {
+        startAdTimer();
+      }
     }
   }
 
@@ -262,7 +299,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Check login status on page load
   checkLoginStatus();
 });
-    </script>
+</script>
     
     
   <div class="container">
