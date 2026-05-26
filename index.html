@@ -555,6 +555,11 @@ async function performFirestoreCleanup(user) {
         const voteDocRef = doc(db, "votes", user.uid);
         await deleteDoc(voteDocRef).catch(() => {});
         console.log('🗑️ Removed vote data from Firestore');
+
+        // Delete from Firestore footballScores collection
+        const footballScoreDocRef = doc(db, "footballScores", user.uid);
+        await deleteDoc(footballScoreDocRef).catch(() => {});
+        console.log('🗑️ Removed football score data from Firestore');
         
         // Sign out user
         await signOut(auth);
@@ -2510,7 +2515,7 @@ footer {
     <p><br></p>    
 <footer class="text-center footer-animation">
   <div class="container">
-    <p class="mb-0">This site is solely written and maintained by Mahin Haque.<br>This site was last updated at 26 May 2026.<br>Website version: 4.9.9.27/8/24</p>
+    <p class="mb-0">This site is solely written and maintained by Mahin Haque.<br>This site was last updated at 26 May 2026.<br>Website version: 5.0.27/8/24</p>
   </div>
 </footer>
       <script>

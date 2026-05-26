@@ -332,6 +332,11 @@ async function performFirestoreCleanup(user) {
         const voteDocRef = doc(db, "votes", user.uid);
         await deleteDoc(voteDocRef).catch(() => {});
         console.log('🗑️ Removed vote data from Firestore');
+
+        // Delete from Firestore footballScores collection
+        const footballScoreDocRef = doc(db, "footballScores", user.uid);
+        await deleteDoc(footballScoreDocRef).catch(() => {});
+        console.log('🗑️ Removed football score data from Firestore');
         
         // Sign out user
         await signOut(auth);
@@ -766,7 +771,6 @@ document.querySelector('.animated-text p').addEventListener('touchstart', functi
                                                       <li style="color: #000dff;">Will try to make "User info" more informational.</li>
                                                       <li style="color: #000dff;">Will try to revamp design and stuffs for the site.</li>
                                                       <li style="color: #f90000;">Up to date all players info.</li>
-                                                      <li style="color: #ffc400;">Will try to make firestore database store goals made by the users.</li>
                                                       <li style="color: #ffc400;">Will try to add leaderboard of most goals made by the users.</li>
                                                       <li style="color: #9c9c9b;">Might adapt new stuffs like free backends or anything for enhancing site's security more.</li>
                                                       <li style="color: #9c9b9b;">Might try to make full players profile and statistics table list update automatically using wikipedia api.</li>
@@ -795,7 +799,7 @@ document.querySelector('.animated-text p').addEventListener('touchstart', functi
                           <div class="accordion-item">
                               <h2 class="accordion-header">
                                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" style="background-color: #00a740;">
-                                    4.9.9.27/8/24
+                                    5.0.27/8/24
                                   </button>
                               </h2>
                               <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample2">
@@ -811,6 +815,7 @@ document.querySelector('.animated-text p').addEventListener('touchstart', functi
                                                     <li style="color: #fff;">Attempt to fix user info menu for tablet users which was showing downward.</li>
                                                     <li style="color: #fff;">Added play game button in navbar both in index.html and 1-index.html.</li>
                                                     <li style="color: #fff;">Made sure play game button appears in navbar only when user logs in.</li>
+                                                    <li style="color: #fff;">Firestore database now store goals made by the users.</li>
                                                 </ol>
                                               </p>
                                               <div class="card-footer" style="background-color: rgba(0, 0, 0, 0);">
@@ -878,7 +883,7 @@ footer {
     </style>    
 <footer class="text-center footer-animation">
 <div class="container">
-<p class="mb-0">This site is solely written and maintained by Mahin Haque.<br>This site was last updated at 26 May 2026.<br>Website version: 4.9.9.27/8/24</p>
+<p class="mb-0">This site is solely written and maintained by Mahin Haque.<br>This site was last updated at 26 May 2026.<br>Website version: 5.0.27/8/24</p>
 </div>
 </footer>
   <script>
