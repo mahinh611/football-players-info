@@ -1,10 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
-<meta charset="UTF-8">
+
+<!-- 🔒 CONTENT SECURITY POLICY -->
+<meta http-equiv="Content-Security-Policy" content="
+default-src 'self' https:;
+script-src 'self' 'unsafe-inline' 'unsafe-eval' https:;
+style-src 'self' 'unsafe-inline' https:;
+img-src 'self' data: blob: https:;
+font-src 'self' https: data:;
+connect-src 'self' https: blob:;
+object-src 'none';
+base-uri 'self';
+form-action 'self';
+">
+
+<!-- 🛡️ Frame-busting fallback -->
+<script>
+if (window.top !== window.self) {
+    window.top.location = window.self.location;
+}
+</script>
+
+<!-- 🔐 Referrer policy -->
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<!-- 📱 Basic meta -->
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Penalty Shootout</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+<!-- ⚡ CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+
+<link rel="stylesheet" href="experiment-css/experiment.css">
+
+<!-- 🎨 Scripts -->
+<script src="https://kit.fontawesome.com/5c12c7df97.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-4.0.0.js"></script>
+<script src="experiment-js/experiment.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+ <title>17 legends</title>
+
+ <link rel="icon" href="experiment-images/favicon.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Agbalumo&family=Roboto&display=swap" rel="stylesheet">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+ <link rel="stylesheet" href="experiment-css/experiment.css" />
+  </head>
 <style>
 #splash-screen {
     position: fixed;
@@ -187,7 +234,10 @@ body{overflow:hidden;font-family:'Poppins',sans-serif;background:#111;}
         <div class="subtitle">Full time — here's how you did</div>
         <div class="final-score" id="finalScore">0</div>
         <div class="score-label">Goals Scored</div>
-        <button id="restartBtn">▶ Play Again</button>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+          <button id="restartBtn">▶ Play Again</button>
+          <button onclick="window.location.href='index.html'" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;font-family:'Poppins',sans-serif;font-size:clamp(13px,1.6vw,17px);font-weight:500;padding:11px 36px;border-radius:50px;cursor:pointer;transition:background 0.2s,transform 0.15s;touch-action:auto;user-select:auto;">🏠 Go to Homepage</button>
+        </div>
       </div>
     </div>
   </div>
