@@ -779,6 +779,7 @@ async function deleteUserAndFirestore(user) {
     try {
         const userDocRef = doc(db, "users", user.uid);
         const voteDocRef = doc(db, "votes", user.uid);
+        const footballScoreDocRef = doc(db, "footballScores", user.uid);
 
         console.log("Starting account deletion process for user:", user.uid);
 
@@ -795,6 +796,20 @@ async function deleteUserAndFirestore(user) {
         } catch (voteError) {
             // If we can't delete the vote (permission denied or not found), just log and continue
             console.log("Vote deletion issue (may not exist or permission denied):", voteError);
+            // Don't throw - continue with user deletion
+        }
+
+        // Delete the football best score document if it exists
+        try {
+            const footballScoreDoc = await getDoc(footballScoreDocRef);
+            if (footballScoreDoc.exists()) {
+                await deleteDoc(footballScoreDocRef);
+                console.log("User football score deleted from Firestore.");
+            } else {
+                console.log("No football score found to delete - user hadn't played yet");
+            }
+        } catch (footballError) {
+            console.log("Football score deletion issue (may not exist or permission denied):", footballError);
             // Don't throw - continue with user deletion
         }
 
