@@ -230,6 +230,7 @@ if (window.top !== window.self) {
                                 </div>
                                 <a href="#" class="rounded-button slide-left-view" id="logout-link" style="display: none;"><i class="fas fa-arrow-right-from-bracket"></i> Logout</a>
                                 <a href="#" class="rounded-button slide-left-view" id="delete-account-link" style="display: none;"><i class="fas fa-trash"></i> Delete Account</a>
+                                <a href="football.html" class="rounded-button slide-left-view" id="play-game-link" style="display: none;"><i class="fas fa-futbol"></i> Play Game</a>
                             </div>
                         </div>
                     </div>
@@ -412,6 +413,7 @@ function checkLoginStatus() {
         userInfoContainer.style.display = "inline-block";
         logoutLink.style.display = "inline-block";
         deleteAccountLink.style.display = "inline-block";
+        document.getElementById("play-game-link").style.display = "inline-block";
 
     } else {
         loginLink.style.display = "inline-block";
@@ -419,7 +421,7 @@ function checkLoginStatus() {
         userInfoContainer.style.display = "none";
         logoutLink.style.display = "none";
         deleteAccountLink.style.display = "none";
-
+        document.getElementById("play-game-link").style.display = "none";
     }
 }
     
@@ -795,7 +797,7 @@ document.querySelector('.animated-text p').addEventListener('touchstart', functi
                                                 </ol>
                                               </p>
                                               <div class="card-footer" style="background-color: rgba(0, 0, 0, 0);">
-                                                <small class="text">26/5/26</small>
+                                                <small class="text">25/5/26 ; 26/5/26</small>
                                             </div>
                                           </div>
                                       </div>
