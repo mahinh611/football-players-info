@@ -706,9 +706,9 @@ async function checkExistingVote() {
                 event.preventDefault();
                 userInfoContainer.classList.toggle("show-overlay");
     
-                // Toggle slide-up or slide-down animation based on device type
-                if (isMobileDevice()) {
-                    userInfoOverlay.style.transform = "translateX(-50%) translateY(-100%)";
+                // Show upward when in offcanvas/hamburger mode (navbar-expand-lg breaks at 992px)
+                if (window.innerWidth < 992) {
+                    userInfoOverlay.style.transform = "translateX(-50%) translateY(-110%)";
                 } else {
                     userInfoOverlay.style.transform = "translateX(-50%) translateY(10px)";
                 }
@@ -2495,7 +2495,7 @@ footer {
     <p><br></p>    
 <footer class="text-center footer-animation">
   <div class="container">
-    <p class="mb-0">This site is solely written and maintained by Mahin Haque.<br>This site was last updated at 7 May 2026.<br>Website version: 4.9.2.27/8/24</p>
+    <p class="mb-0">This site is solely written and maintained by Mahin Haque.<br>This site was last updated at 26 May 2026.<br>Website version: 4.9.9.27/8/24</p>
   </div>
 </footer>
       <script>
