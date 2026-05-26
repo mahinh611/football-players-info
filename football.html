@@ -209,6 +209,10 @@ body{overflow:hidden;font-family:'Poppins',sans-serif;background:#111;}
         <span class="stat-label">Time</span>
         <span class="stat-value" id="timerVal">60</span>
       </div>
+      <div class="stat-block" style="border-top:1px solid rgba(255,255,255,0.15);padding-top:6px;margin-top:2px;">
+        <span class="stat-label">Best</span>
+        <span class="stat-value" id="bestScore" style="color:#ffd700;">—</span>
+      </div>
     </div>
   </div>
 
@@ -234,6 +238,8 @@ body{overflow:hidden;font-family:'Poppins',sans-serif;background:#111;}
         <div class="subtitle">Full time — here's how you did</div>
         <div class="final-score" id="finalScore">0</div>
         <div class="score-label">Goals Scored</div>
+        <div id="bestScoreLine" style="font-size:clamp(12px,1.5vw,15px);opacity:.7;margin-bottom:8px;letter-spacing:.5px;color:#ffd700;">🏆 Best: —</div>
+        <div id="newBestBadge" style="display:none;font-size:clamp(12px,1.5vw,14px);background:rgba(255,215,0,0.18);border:1px solid rgba(255,215,0,0.4);border-radius:20px;padding:4px 16px;margin-bottom:16px;color:#ffd700;letter-spacing:1px;">⭐ NEW BEST!</div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
           <button id="restartBtn">▶ Play Again</button>
           <button onclick="window.location.href='index.html'" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;font-family:'Poppins',sans-serif;font-size:clamp(13px,1.6vw,17px);font-weight:500;padding:11px 36px;border-radius:50px;cursor:pointer;transition:background 0.2s,transform 0.15s;touch-action:auto;user-select:auto;">🏠 Go to Homepage</button>
@@ -250,9 +256,12 @@ body{overflow:hidden;font-family:'Poppins',sans-serif;background:#111;}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
 import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
 import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db   = getFirestore(app);
+
 initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider('6LdpeVYqAAAAAA2i5yEtBFiVV3cBS9WCAin8LK3w'),
   isTokenAutoRefreshEnabled: true
@@ -261,11 +270,9 @@ initializeAppCheck(app, {
 // 🔒 TAMPER PROTECTION — same as index.html
 (function() {
     const originalGetItem = localStorage.getItem;
-    const originalSetItem = localStorage.setItem;
 
     localStorage.getItem = function(key) {
         const value = originalGetItem.call(this, key);
-
         if (key === 'userEmail' && value) {
             const user = auth.currentUser;
             if (user && user.email !== value) {
@@ -281,23 +288,6 @@ initializeAppCheck(app, {
     console.log("🔒 Tamper protection activated");
 })();
 
-// 🔐 LOGIN REQUIRED — kick out logged-out users, and re-check via Firebase auth state
-auth.onAuthStateChanged((user) => {
-    const userEmail = localStorage.getItem("userEmail");
-
-    if (!user && !userEmail) {
-        // Definitely not logged in
-        window.location.href = "index.html";
-    } else if (user && !user.emailVerified) {
-        // Logged in but unverified — treat as not logged in
-        signOut(auth).then(() => {
-            localStorage.removeItem("userEmail");
-            localStorage.removeItem("popupShown");
-            window.location.href = "index.html";
-        });
-    }
-});
-
 // ⚡ Fast localStorage pre-check (runs before Firebase resolves)
 (function earlyGuard() {
     const userEmail = localStorage.getItem("userEmail");
@@ -305,6 +295,64 @@ auth.onAuthStateChanged((user) => {
         window.location.href = "index.html";
     }
 })();
+
+// 🏆 BEST SCORE — load from Firestore on auth ready, then expose save function
+window.footballBestScore = 0;
+
+async function loadBestScore(uid) {
+    try {
+        const ref = doc(db, "footballScores", uid);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+            const best = snap.data().bestScore || 0;
+            window.footballBestScore = best;
+            const el = document.getElementById('bestScore');
+            if (el) el.textContent = best;
+        }
+    } catch (e) {
+        console.warn("Could not load best score:", e);
+    }
+}
+
+async function saveBestScore(uid, newScore) {
+    try {
+        const ref = doc(db, "footballScores", uid);
+        const snap = await getDoc(ref);
+        if (!snap.exists() || newScore > (snap.data().bestScore || 0)) {
+            await setDoc(ref, { bestScore: newScore, updatedAt: new Date().toISOString() }, { merge: true });
+            window.footballBestScore = newScore;
+            return true; // is new best
+        }
+        return false;
+    } catch (e) {
+        console.warn("Could not save best score:", e);
+        return false;
+    }
+}
+
+// Expose so the game script can call it
+window.saveBestScoreForUser = async function(score) {
+    const user = auth.currentUser;
+    if (!user) return false;
+    return await saveBestScore(user.uid, score);
+};
+
+// 🔐 LOGIN REQUIRED — kick out logged-out users, load best score when confirmed logged in
+auth.onAuthStateChanged((user) => {
+    const userEmail = localStorage.getItem("userEmail");
+
+    if (!user && !userEmail) {
+        window.location.href = "index.html";
+    } else if (user && !user.emailVerified) {
+        signOut(auth).then(() => {
+            localStorage.removeItem("userEmail");
+            localStorage.removeItem("popupShown");
+            window.location.href = "index.html";
+        });
+    } else if (user && user.emailVerified) {
+        loadBestScore(user.uid);
+    }
+});
 </script>
 
 <script>
@@ -419,14 +467,36 @@ function updateTimerDisplay(){
   else if(timeLeft<=20) timerVal.className='warning';
 }
 
-function endGame(){
+async function endGame(){
   gameActive=false;
   clearInterval(timerInterval);
   timerInterval=null;
   shooting=false;
   dragging=false;
+
+  // 🏆 Save best score to Firestore
+  let isNewBest = false;
+  if (typeof window.saveBestScoreForUser === 'function') {
+    isNewBest = await window.saveBestScoreForUser(score);
+  }
+
+  const currentBest = window.footballBestScore || 0;
+
   setTimeout(()=>{
     finalScore.textContent=score;
+
+    // Update HUD best score
+    const hudBest = document.getElementById('bestScore');
+    if (hudBest) hudBest.textContent = currentBest;
+
+    // Update end screen best score line
+    const bestLine = document.getElementById('bestScoreLine');
+    if (bestLine) bestLine.textContent = '🏆 Best: ' + currentBest;
+
+    // Show ⭐ NEW BEST! badge if this game broke the record
+    const badge = document.getElementById('newBestBadge');
+    if (badge) badge.style.display = isNewBest ? 'block' : 'none';
+
     startScreen.style.display='none';
     endScreen.style.display='block';
     gameOver.classList.add('visible');
