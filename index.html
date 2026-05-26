@@ -437,6 +437,7 @@ document.addEventListener("DOMContentLoaded", function () {
                               </div>
                               <a href="#" class="rounded-button slide-left-view" id="logout-link" style="display: none;"><i class="fas fa-arrow-right-from-bracket"></i> Logout</a>
                               <a href="#" class="rounded-button slide-left-view" id="delete-account-link" style="display: none;"><i class="fas fa-trash"></i> Delete Account</a>
+                              <a href="football.html" class="rounded-button slide-left-view" id="play-game-link" style="display: none;"><i class="fas fa-futbol"></i> Play Game</a>
                           </div>
                       </div>
                   </div>
@@ -637,6 +638,7 @@ function checkLoginStatus() {
         userInfoContainer.style.display = "inline-block";
         logoutLink.style.display = "inline-block";
         deleteAccountLink.style.display = "inline-block";
+        document.getElementById("play-game-link").style.display = "inline-block";
         votingForm.style.display = "block";
         loginCard.style.display = "none";
         
@@ -648,6 +650,7 @@ function checkLoginStatus() {
         userInfoContainer.style.display = "none";
         logoutLink.style.display = "none";
         deleteAccountLink.style.display = "none";
+        document.getElementById("play-game-link").style.display = "none";
         votingForm.style.display = "none";
         loginCard.style.display = "block";
     }

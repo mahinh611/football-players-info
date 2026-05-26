@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penalty Shootout</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+#splash-screen {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    transition: opacity 0.5s ease;
+}
+#splash-screen.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+.loader {
+    width: 60px;
+    height: 60px;
+    border: 5px solid rgba(255,255,255,0.2);
+    border-top-color: #07ec67;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;touch-action:none;user-select:none;}
+body{overflow:hidden;font-family:'Poppins',sans-serif;background:#111;}
+#game{position:relative;width:100vw;height:100vh;overflow:hidden;background:linear-gradient(to bottom,rgba(135,190,255,.45),rgba(255,255,255,.05) 35%),linear-gradient(to bottom,#59c95f 0%,#2f9337 55%,#1f6f26 100%);}
+#game::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(255,255,255,.22),transparent 32%),radial-gradient(circle at top right,rgba(255,255,255,.18),transparent 32%),radial-gradient(circle at top center,rgba(255,255,255,.12),transparent 40%);pointer-events:none;}
+#grass{position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 80px,rgba(0,0,0,.02) 80px 160px);opacity:.55;}
+.crowd{position:absolute;top:0;width:100%;height:26%;background:repeating-linear-gradient(90deg,#111 0 6px,#222 6px 12px,#2c2c2c 12px 18px,#151515 18px 24px);filter:blur(1px);}
+.goal{position:absolute;top:7%;left:50%;transform:translateX(-50%);width:min(72vw,580px);height:min(31vh,250px);border:8px solid white;border-bottom:none;border-radius:10px 10px 0 0;box-shadow:0 0 28px rgba(255,255,255,.4),inset 0 0 25px rgba(255,255,255,.1);}
+#net{position:absolute;top:7%;left:50%;transform:translateX(-50%);width:min(72vw,580px);height:min(31vh,250px);pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.13) 2px,transparent 2px),linear-gradient(90deg,rgba(255,255,255,.13) 2px,transparent 2px);background-size:26px 26px;}
+#keeper{position:absolute;width:100px;height:160px;}
+.shadow{position:absolute;width:70px;height:14px;background:rgba(0,0,0,.3);bottom:-4px;left:50%;transform:translateX(-50%);filter:blur(6px);border-radius:50%;}
+.torso{position:absolute;width:52px;height:66px;left:50%;top:34px;transform:translateX(-50%);border-radius:14px;background:linear-gradient(to bottom,#00a2ff,#005ac7);box-shadow:inset 0 -10px 16px rgba(0,0,0,.28);}
+.torso::before{content:'';position:absolute;width:7px;height:100%;background:rgba(255,255,255,.2);left:50%;transform:translateX(-50%);}
+.head{position:absolute;width:36px;height:40px;left:50%;top:0;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffd9b8,#dca37b);box-shadow:0 2px 5px rgba(0,0,0,.25);}
+.head::before{content:'';position:absolute;top:-3px;left:0;width:100%;height:16px;background:#161616;border-radius:50% 50% 40% 40%;}
+.arm{position:absolute;width:14px;height:58px;top:40px;border-radius:16px;transform-origin:top center;background:linear-gradient(to bottom,#ffd7b2,#d99668);}
+.arm::after{content:'';position:absolute;width:20px;height:14px;bottom:-5px;left:50%;transform:translateX(-50%);border-radius:10px;background:linear-gradient(to bottom,#fff,#d8d8d8);}
+.leg{position:absolute;width:16px;height:60px;bottom:0;border-radius:16px;background:linear-gradient(to bottom,#1d1d1d,#000);transform-origin:top center;}
+.leg::after{content:'';position:absolute;width:24px;height:11px;bottom:-2px;background:#ff3232;border-radius:10px;}
+.left-arm{left:20px;transform:rotate(14deg);}
+.right-arm{right:20px;transform:rotate(-14deg);}
+.left-leg{left:36px;transform:rotate(3deg);}
+.right-leg{right:36px;transform:rotate(-3deg);}
+.left-leg::after{left:-4px;}.right-leg::after{right:-4px;}
+#ball{position:absolute;width:72px;height:72px;left:50%;bottom:13%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#e5e5e5 50%,#9d9d9d);box-shadow:inset -10px -10px 16px rgba(0,0,0,.25),0 10px 22px rgba(0,0,0,.45);z-index:5;}
+#ball::before{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 50% 50%,transparent 58%,rgba(0,0,0,.15) 60%);}
+
+
+/* HUD with blur background */
+#hud{
+  position:absolute;top:16px;left:16px;color:white;z-index:20;
+  background:rgba(0,0,0,0.35);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-radius:14px;
+  padding:10px 20px;
+  border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3);
+  text-shadow:0 2px 6px rgba(0,0,0,.5);
+  width:110px;
+}
+#hud .stats{display:flex;flex-direction:column;gap:6px;}
+#hud .stat-block{display:flex;flex-direction:row;align-items:center;justify-content:space-between;}
+#hud .stat-label{font-size:11px;font-weight:500;opacity:.7;text-transform:uppercase;letter-spacing:1px;line-height:1;}
+#hud .stat-value{font-size:20px;font-weight:700;line-height:1;}
+
+/* Timer color states */
+#timerVal{color:#00ff95;transition:color 0.3s;}
+#timerVal.warning{color:#ffcc00;}
+#timerVal.danger{color:#ff4040;animation:pulse 0.5s infinite alternate;}
+@keyframes pulse{from{opacity:1;}to{opacity:0.5;}}
+
+#message{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(34px,6vw,80px);font-weight:700;opacity:0;transition:opacity .25s;color:white;text-shadow:0 8px 22px rgba(0,0,0,.5);pointer-events:none;z-index:30;}
+
+/* Game Over Overlay */
+#gameOver{
+  display:none;
+  position:absolute;inset:0;z-index:50;
+  background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;flex-direction:column;
+}
+#gameOver.visible{display:flex;}
+#gameOverCard{
+  background:rgba(10,10,10,0.75);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:24px;
+  padding:40px 56px;
+  text-align:center;
+  color:white;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  animation:slideUp 0.4s cubic-bezier(.22,1,.36,1);
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
+#gameOverCard h2{font-size:clamp(28px,5vw,52px);font-weight:700;margin-bottom:6px;letter-spacing:1px;}
+#gameOverCard .subtitle{opacity:.6;font-size:clamp(12px,1.5vw,16px);margin-bottom:20px;}
+#gameOverCard .final-score{font-size:clamp(48px,8vw,96px);font-weight:700;color:#00ff95;line-height:1;text-shadow:0 0 40px rgba(0,255,149,0.5);margin-bottom:6px;}
+#gameOverCard .score-label{font-size:clamp(12px,1.5vw,15px);opacity:.55;text-transform:uppercase;letter-spacing:2px;margin-bottom:32px;}
+#restartBtn, #playBtn{
+  background:linear-gradient(135deg,#00ff95,#00c97a);
+  border:none;color:#000;font-family:'Poppins',sans-serif;
+  font-size:clamp(15px,2vw,20px);font-weight:700;
+  padding:14px 48px;border-radius:50px;cursor:pointer;
+  box-shadow:0 6px 28px rgba(0,255,149,0.4);
+  transition:transform 0.15s, box-shadow 0.15s;
+  touch-action:auto;user-select:auto;
+}
+#restartBtn:hover, #playBtn:hover{transform:scale(1.06);box-shadow:0 10px 36px rgba(0,255,149,0.55);}
+#restartBtn:active, #playBtn:active{transform:scale(0.97);}
+</style>
+</head>
+<body>
+<div id="splash-screen">
+    <div class="loader"></div>
+    <h2>Loading 17 Legends...</h2>
+</div>
+
+<div id="game">
+  <div class="crowd"></div>
+  <div id="grass"></div>
+  <div class="goal" id="goalEl"></div>
+  <div id="net"></div>
+  <div id="keeper">
+    <div class="shadow"></div>
+    <div class="head"></div>
+    <div class="torso"></div>
+    <div class="arm left-arm" id="lArm"></div>
+    <div class="arm right-arm" id="rArm"></div>
+    <div class="leg left-leg" id="lLeg"></div>
+    <div class="leg right-leg" id="rLeg"></div>
+  </div>
+  <div id="ball"></div>
+
+  <div id="hud">
+    <div class="stats">
+      <div class="stat-block">
+        <span class="stat-label">Goals</span>
+        <span class="stat-value" id="score">0</span>
+      </div>
+      <div class="stat-block">
+        <span class="stat-label">Time</span>
+        <span class="stat-value" id="timerVal">60</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="message"></div>
+
+  <!-- Start / Game Over Overlay -->
+  <div id="gameOver" class="visible">
+    <div id="gameOverCard">
+      <!-- Start screen -->
+      <div id="startScreen">
+        <div style="font-size:clamp(48px,9vw,100px);line-height:1;margin-bottom:8px;">⚽</div>
+        <h2>Penalty Shootout</h2>
+        <div class="subtitle">How many goals can you score in 60 seconds?</div>
+        <div style="font-size:clamp(11px,1.4vw,14px);opacity:.45;margin-bottom:28px;letter-spacing:.5px;">Swipe up to shoot</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+          <button id="playBtn">▶ Play</button>
+          <button id="homeBtn" onclick="window.location.href='index.html'" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;font-family:'Poppins',sans-serif;font-size:clamp(13px,1.6vw,17px);font-weight:500;padding:11px 36px;border-radius:50px;cursor:pointer;transition:background 0.2s,transform 0.15s;touch-action:auto;user-select:auto;">🏠 Go to Homepage</button>
+        </div>
+      </div>
+      <!-- End screen -->
+      <div id="endScreen" style="display:none;">
+        <h2>⏱ TIME'S UP!</h2>
+        <div class="subtitle">Full time — here's how you did</div>
+        <div class="final-score" id="finalScore">0</div>
+        <div class="score-label">Goals Scored</div>
+        <button id="restartBtn">▶ Play Again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
+import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LdpeVYqAAAAAA2i5yEtBFiVV3cBS9WCAin8LK3w'),
+  isTokenAutoRefreshEnabled: true
+});
+
+// 🔒 TAMPER PROTECTION — same as index.html
+(function() {
+    const originalGetItem = localStorage.getItem;
+    const originalSetItem = localStorage.setItem;
+
+    localStorage.getItem = function(key) {
+        const value = originalGetItem.call(this, key);
+
+        if (key === 'userEmail' && value) {
+            const user = auth.currentUser;
+            if (user && user.email !== value) {
+                console.warn('Tampered localStorage detected - clearing invalid data');
+                this.removeItem('userEmail');
+                this.removeItem('popupShown');
+                return null;
+            }
+        }
+        return value;
+    };
+
+    console.log("🔒 Tamper protection activated");
+})();
+
+// 🔐 LOGIN REQUIRED — kick out logged-out users, and re-check via Firebase auth state
+auth.onAuthStateChanged((user) => {
+    const userEmail = localStorage.getItem("userEmail");
+
+    if (!user && !userEmail) {
+        // Definitely not logged in
+        window.location.href = "index.html";
+    } else if (user && !user.emailVerified) {
+        // Logged in but unverified — treat as not logged in
+        signOut(auth).then(() => {
+            localStorage.removeItem("userEmail");
+            localStorage.removeItem("popupShown");
+            window.location.href = "index.html";
+        });
+    }
+});
+
+// ⚡ Fast localStorage pre-check (runs before Firebase resolves)
+(function earlyGuard() {
+    const userEmail = localStorage.getItem("userEmail");
+    if (!userEmail) {
+        window.location.href = "index.html";
+    }
+})();
+</script>
+
+<script>
+const ball      = document.getElementById('ball');
+const keeper    = document.getElementById('keeper');
+const goalEl    = document.getElementById('goalEl');
+const lArm      = document.getElementById('lArm');
+const rArm      = document.getElementById('rArm');
+const lLeg      = document.getElementById('lLeg');
+const rLeg      = document.getElementById('rLeg');
+const message   = document.getElementById('message');
+const scoreText = document.getElementById('score');
+const timerVal  = document.getElementById('timerVal');
+const gameOver  = document.getElementById('gameOver');
+const finalScore= document.getElementById('finalScore');
+const restartBtn= document.getElementById('restartBtn');
+const playBtn   = document.getElementById('playBtn');
+const startScreen = document.getElementById('startScreen');
+const endScreen   = document.getElementById('endScreen');
+
+const GAME_DURATION = 60;
+let startX=0,startY=0,dragging=false,shooting=false,score=0;
+let kFrac=0.5,kTarget=0.5;
+let keeperDiving=false,keeperDiveDir=0,diveProgress=0;
+let timeLeft=GAME_DURATION,timerInterval=null,gameActive=false;
+
+function getGoalMetrics(){
+  const r=goalEl.getBoundingClientRect();
+  const g=document.getElementById('game').getBoundingClientRect();
+  return{
+    left:r.left-g.left+8, right:r.right-g.left-8,
+    top:r.top-g.top+8, bottom:r.bottom-g.top,
+    width:r.width-16, gW:g.width, gH:g.height
+  };
+}
+
+function setIdlePose(){
+  lArm.style.transform='rotate(14deg)';
+  rArm.style.transform='rotate(-14deg)';
+  lLeg.style.transform='rotate(3deg)';
+  rLeg.style.transform='rotate(-3deg)';
+  keeper.style.transform='none';
+}
+
+function positionKeeper(){
+  const m=getGoalMetrics();
+  const kW=keeper.offsetWidth, kH=keeper.offsetHeight;
+  const centerX=m.left+kFrac*m.width;
+  keeper.style.left=(centerX-kW/2)+'px';
+  keeper.style.top=(m.bottom-kH)+'px';
+}
+
+function animateDive(){
+  if(!keeperDiving)return;
+  diveProgress=Math.min(1,diveProgress+0.045);
+  const t=diveProgress<0.5?2*diveProgress*diveProgress:-1+(4-2*diveProgress)*diveProgress;
+  kFrac+=(kTarget-kFrac)*0.15;
+  positionKeeper();
+  const bodyTilt=keeperDiveDir*38*t;
+  const armReach=70*t;
+  const legKick=22*t;
+  keeper.style.transform=`rotate(${bodyTilt}deg)`;
+  if(keeperDiveDir<0){
+    lArm.style.transform=`rotate(${-armReach}deg)`;
+    rArm.style.transform=`rotate(${20*t}deg)`;
+    lLeg.style.transform=`rotate(${-legKick}deg)`;
+    rLeg.style.transform=`rotate(${legKick*1.4}deg)`;
+  } else {
+    rArm.style.transform=`rotate(${armReach}deg)`;
+    lArm.style.transform=`rotate(${-20*t}deg)`;
+    rLeg.style.transform=`rotate(${legKick}deg)`;
+    lLeg.style.transform=`rotate(${-legKick*1.4}deg)`;
+  }
+  if(diveProgress<1) requestAnimationFrame(animateDive);
+}
+
+positionKeeper();
+setIdlePose();
+
+function showMessage(txt,color){
+  message.innerText=txt;
+  message.style.color=color;
+  message.style.opacity=1;
+  setTimeout(()=>message.style.opacity=0,1300);
+}
+
+function resetBall(){
+  shooting=false;
+  keeperDiving=false;
+  diveProgress=0;
+  kTarget=kFrac;
+  ball.style.transition='none';
+  ball.style.left='50%';
+  ball.style.bottom='13%';
+  ball.style.transform='translateX(-50%) scale(1)';
+  setTimeout(()=>{
+    setIdlePose();
+    const returnAnim=()=>{
+      if(shooting)return;
+      kFrac+=(0.5-kFrac)*0.04;
+      positionKeeper();
+      if(Math.abs(kFrac-0.5)>0.005) requestAnimationFrame(returnAnim);
+    };
+    requestAnimationFrame(returnAnim);
+  },300);
+}
+
+function updateTimerDisplay(){
+  timerVal.textContent=timeLeft;
+  timerVal.className='';
+  if(timeLeft<=10) timerVal.className='danger';
+  else if(timeLeft<=20) timerVal.className='warning';
+}
+
+function endGame(){
+  gameActive=false;
+  clearInterval(timerInterval);
+  timerInterval=null;
+  shooting=false;
+  dragging=false;
+  setTimeout(()=>{
+    finalScore.textContent=score;
+    startScreen.style.display='none';
+    endScreen.style.display='block';
+    gameOver.classList.add('visible');
+  },400);
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timeLeft=GAME_DURATION;
+  updateTimerDisplay();
+  gameActive=true;
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    updateTimerDisplay();
+    if(timeLeft<=0) endGame();
+  },1000);
+}
+
+function startGame(){
+  score=0;
+  scoreText.textContent='0';
+  gameOver.classList.remove('visible');
+  shooting=false;
+  dragging=false;
+  keeperDiving=false;
+  diveProgress=0;
+  kFrac=0.5;
+  kTarget=0.5;
+  positionKeeper();
+  setIdlePose();
+  resetBall();
+  startTimer();
+}
+
+function shoot(dx,dy){
+  if(shooting||!gameActive)return;
+  shooting=true;
+  const m=getGoalMetrics();
+  const rawX=m.gW/2+dx*0.85;
+  const rawY=m.gH*0.87-dy*1.05;
+  const targetX=Math.max(m.left-60,Math.min(m.right+60,rawX));
+  const targetY=Math.max(m.top-30,Math.min(m.bottom+50,rawY));
+  const tXpct=(targetX/m.gW)*100;
+  const tYpct=((m.gH-targetY)/m.gH)*100;
+  const shotFrac=Math.max(0,Math.min(1,(targetX-m.left)/m.width));
+  // 60% chance keeper guesses right direction
+  const willDive=Math.random()<0.60;
+
+  setTimeout(()=>{
+    if(willDive){
+      // Dives toward shot with small error
+      const error=(Math.random()*0.16)-0.08;
+      kTarget=Math.max(0,Math.min(1,shotFrac+error));
+      keeperDiveDir=shotFrac>0.5?1:-1;
+    } else {
+      // Dives wrong way
+      keeperDiveDir=shotFrac>0.5?-1:1;
+      kTarget=Math.max(0,Math.min(1,shotFrac>0.5?0.12:0.88));
+    }
+    keeperDiving=true;
+    diveProgress=0;
+    requestAnimationFrame(animateDive);
+  },260);
+
+  ball.style.transition='all .85s cubic-bezier(.15,.75,.2,1)';
+  ball.style.left=tXpct+'%';
+  ball.style.bottom=tYpct+'%';
+  const sc=Math.max(.28,1-dy/900);
+  ball.style.transform=`translateX(-50%) scale(${sc})`;
+
+  setTimeout(()=>{
+    const inH=(targetX>m.left&&targetX<m.right);
+    const inV=(targetY>m.top&&targetY<m.bottom);
+    if(!inH||!inV){
+      showMessage('MISS!','#ffcc00');
+    } else {
+      const kRect=keeper.getBoundingClientRect();
+      const gRect=document.getElementById('game').getBoundingClientRect();
+      const kCx=kRect.left+kRect.width/2-gRect.left;
+      const reach=kRect.width*0.58;
+      const hDiff=Math.abs(kCx-targetX);
+      const isTop=(targetY<m.top+(m.bottom-m.top)*0.4);
+      // Top corners harder to save; low/mid shots saveable when keeper is close
+      const saved=willDive&&(isTop?hDiff<reach*0.44:hDiff<reach*0.88);
+      if(saved){
+        showMessage('SAVED!','#ff4040');
+      } else {
+        score++;
+        scoreText.textContent=score;
+        showMessage('GOAL!','#00ff95');
+      }
+    }
+    setTimeout(resetBall,750);
+  },840);
+}
+
+function pointerDown(x,y){if(shooting||!gameActive)return;dragging=true;startX=x;startY=y;}
+function pointerMove(x,y){
+  if(!dragging)return;
+}
+function pointerUp(x,y){
+  if(!dragging)return;
+  dragging=false;
+  const dx=x-startX,dy=startY-y;
+  if(dy>8)shoot(dx,dy);
+}
+
+window.addEventListener('mousedown', e=>pointerDown(e.clientX,e.clientY));
+window.addEventListener('mousemove',  e=>pointerMove(e.clientX,e.clientY));
+window.addEventListener('mouseup',    e=>pointerUp(e.clientX,e.clientY));
+window.addEventListener('touchstart', e=>{const t=e.touches[0];pointerDown(t.clientX,t.clientY);},{passive:false});
+window.addEventListener('touchmove',  e=>{const t=e.touches[0];pointerMove(t.clientX,t.clientY);},{passive:false});
+window.addEventListener('touchend',   e=>{const t=e.changedTouches[0];pointerUp(t.clientX,t.clientY);},{passive:false});
+
+restartBtn.addEventListener('click', startGame);
+restartBtn.addEventListener('touchend', e=>{e.preventDefault();startGame();});
+playBtn.addEventListener('click', startGame);
+playBtn.addEventListener('touchend', e=>{e.preventDefault();startGame();});
+
+// Init keeper position but don't start — wait for Play
+positionKeeper();
+setIdlePose();
+</script>
+<script>
+window.addEventListener("load", function () {
+    const splash = document.getElementById("splash-screen");
+    splash.classList.add("fade-out");
+    setTimeout(() => {
+        splash.remove();
+        document.body.classList.add("splash-done");
+    }, 500);
+});
+</script>
+
+</body>
+</html>
