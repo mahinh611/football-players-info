@@ -383,8 +383,10 @@ async function loadBestScore(uid) {
 }
 
 window.saveBestScoreForUser = async function(score) {
-    const uid   = window.currentUserUid;
-    const email = window.currentUserEmail;
+    // Always pull fresh from auth.currentUser so email is never null
+    const user  = auth.currentUser;
+    const uid   = user ? user.uid   : window.currentUserUid;
+    const email = user ? user.email : window.currentUserEmail;
     if (!uid || !email) return false;
     try {
         const ref  = doc(db, "footballScores", uid);
@@ -458,6 +460,17 @@ auth.onAuthStateChanged((user) => {
         window.currentUserUid   = user.uid;
         window.currentUserEmail = user.email;
         loadBestScore(user.uid);
+        // 🔧 Backfill email if doc exists but email field is missing
+        (async () => {
+            try {
+                const ref  = doc(db, "footballScores", user.uid);
+                const snap = await getDoc(ref);
+                if (snap.exists() && !snap.data().email) {
+                    await setDoc(ref, { email: user.email }, { merge: true });
+                    console.log("✅ Backfilled missing email on footballScores doc");
+                }
+            } catch(e) {}
+        })();
     }
 });
 </script>
