@@ -446,7 +446,7 @@ window.loadLeaderboard = async function() {
 };
 
 // 🔐 AUTH STATE
-auth.onAuthStateChanged((user) => {
+auth.onAuthStateChanged(async (user) => {
     const userEmail = localStorage.getItem("userEmail");
     if (!user && !userEmail) {
         window.location.href = "index.html";
@@ -457,6 +457,23 @@ auth.onAuthStateChanged((user) => {
             window.location.href = "index.html";
         });
     } else if (user && user.emailVerified) {
+        // 🔒 Airtight enforcement — verify user exists in Firestore users collection
+        try {
+            const userSnap = await getDoc(doc(db, "users", user.uid));
+            if (!userSnap.exists()) {
+                console.warn("⛔ User has no Firestore record — access denied");
+                await signOut(auth);
+                localStorage.removeItem("userEmail");
+                localStorage.removeItem("popupShown");
+                window.location.href = "index.html";
+                return;
+            }
+        } catch(e) {
+            console.warn("Could not verify Firestore user record:", e);
+            window.location.href = "index.html";
+            return;
+        }
+
         window.currentUserUid   = user.uid;
         window.currentUserEmail = user.email;
         loadBestScore(user.uid);
