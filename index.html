@@ -525,6 +525,17 @@ window.firebaseApp = {
     console.log("🔒 Tamper protection activated");
 })();
 
+// ⚡ Fast localStorage pre-check — hides protected content before Firebase resolves
+(function earlyGuard() {
+    const userEmail = localStorage.getItem("userEmail");
+    const protectedSections = document.querySelectorAll('.auth-protected');
+    if (!userEmail) {
+        // No local session — hide any auth-protected elements immediately
+        protectedSections.forEach(el => el.style.display = 'none');
+    }
+    console.log("⚡ EarlyGuard activated — session:", userEmail ? "found" : "none");
+})();
+
 // ✅ SIMPLE FIRESTORE CLEANUP (This works!)
 async function checkAndCleanExpiredUsers() {
     const user = auth.currentUser;
