@@ -175,6 +175,67 @@ body{overflow:hidden;font-family:'Poppins',sans-serif;background:#111;}
 }
 #restartBtn:hover, #playBtn:hover{transform:scale(1.06);box-shadow:0 10px 36px rgba(0,255,149,0.55);}
 #restartBtn:active, #playBtn:active{transform:scale(0.97);}
+
+/* ── Leaderboard ── */
+#leaderboardBtn{
+  background:rgba(255,255,255,0.10);
+  border:1px solid rgba(255,255,255,0.22);
+  color:white;font-family:'Poppins',sans-serif;
+  font-size:clamp(13px,1.6vw,17px);font-weight:500;
+  padding:11px 36px;border-radius:50px;cursor:pointer;
+  transition:background 0.2s,transform 0.15s;
+  touch-action:auto;user-select:auto;
+}
+#leaderboardBtn:hover{background:rgba(255,255,255,0.18);transform:scale(1.04);}
+#leaderboardOverlay{
+  display:none;position:absolute;inset:0;z-index:60;
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;
+}
+#leaderboardOverlay.open{display:flex;}
+#leaderboardPanel{
+  background:rgba(10,10,10,0.88);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:24px;padding:32px 40px;
+  width:min(480px,90vw);max-height:80vh;overflow-y:auto;
+  color:white;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.7);
+  animation:slideUp 0.35s cubic-bezier(.22,1,.36,1);
+}
+#leaderboardPanel h3{
+  font-size:clamp(20px,3vw,28px);font-weight:700;
+  margin:0 0 4px;letter-spacing:1px;
+}
+#leaderboardPanel .lb-sub{
+  font-size:clamp(11px,1.3vw,13px);opacity:.5;
+  text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;
+}
+.lb-row{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 14px;border-radius:14px;margin-bottom:6px;
+  background:rgba(255,255,255,0.05);
+}
+.lb-row.me{background:rgba(0,255,149,0.10);border:1px solid rgba(0,255,149,0.25);}
+.lb-rank{
+  font-size:clamp(14px,1.8vw,18px);font-weight:700;
+  width:28px;text-align:center;flex-shrink:0;
+}
+.lb-rank.gold{color:#ffd700;}
+.lb-rank.silver{color:#c0c0c0;}
+.lb-rank.bronze{color:#cd7f32;}
+.lb-name{flex:1;text-align:left;font-size:clamp(13px,1.6vw,15px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lb-score{font-size:clamp(14px,1.8vw,17px);font-weight:700;color:#00ff95;}
+#lbCloseBtn{
+  margin-top:22px;background:rgba(255,255,255,0.10);
+  border:1px solid rgba(255,255,255,0.22);color:white;
+  font-family:'Poppins',sans-serif;font-size:clamp(13px,1.6vw,15px);
+  font-weight:500;padding:10px 32px;border-radius:50px;cursor:pointer;
+  transition:background 0.2s;touch-action:auto;user-select:auto;
+}
+#lbCloseBtn:hover{background:rgba(255,255,255,0.2);}
+.lb-empty{opacity:.45;font-size:clamp(13px,1.5vw,15px);padding:20px 0;}
+.lb-loading{opacity:.45;font-size:clamp(13px,1.5vw,15px);padding:20px 0;}
 </style>
 </head>
 <body>
@@ -238,15 +299,27 @@ body{overflow:hidden;font-family:'Poppins',sans-serif;background:#111;}
         <div class="subtitle">Full time — here's how you did</div>
         <div class="final-score" id="finalScore">0</div>
         <div class="score-label">Goals Scored</div>
-        <div id="bestScoreLine" style="font-size:clamp(12px,1.5vw,15px);opacity:.7;margin-bottom:8px;letter-spacing:.5px;color:#ffd700;">🏆 Best: —</div>
+        <div id="bestScoreLine" style="font-size:clamp(12px,1.5vw,15px);opacity:.7;margin-bottom:6px;letter-spacing:.5px;color:#ffd700;">🏆 Best: —</div>
         <div id="newBestBadge" style="display:none;font-size:clamp(12px,1.5vw,14px);background:rgba(255,215,0,0.18);border:1px solid rgba(255,215,0,0.4);border-radius:20px;padding:4px 16px;margin-bottom:16px;color:#ffd700;letter-spacing:1px;">⭐ NEW BEST!</div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:10px;">
           <button id="restartBtn">▶ Play Again</button>
+          <button id="leaderboardBtn">🏅 Leaderboard</button>
           <button onclick="window.location.href='index.html'" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;font-family:'Poppins',sans-serif;font-size:clamp(13px,1.6vw,17px);font-weight:500;padding:11px 36px;border-radius:50px;cursor:pointer;transition:background 0.2s,transform 0.15s;touch-action:auto;user-select:auto;">🏠 Go to Homepage</button>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Leaderboard overlay -->
+  <div id="leaderboardOverlay">
+    <div id="leaderboardPanel">
+      <h3>🏅 Leaderboard</h3>
+      <div class="lb-sub">Top 10 — All Time Best Scores</div>
+      <div id="lbList"><div class="lb-loading">Loading...</div></div>
+      <button id="lbCloseBtn">✕ Close</button>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
@@ -256,7 +329,7 @@ body{overflow:hidden;font-family:'Poppins',sans-serif;background:#111;}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
 import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
 import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -267,10 +340,9 @@ initializeAppCheck(app, {
   isTokenAutoRefreshEnabled: true
 });
 
-// 🔒 TAMPER PROTECTION — same as index.html
+// 🔒 TAMPER PROTECTION
 (function() {
     const originalGetItem = localStorage.getItem;
-
     localStorage.getItem = function(key) {
         const value = originalGetItem.call(this, key);
         if (key === 'userEmail' && value) {
@@ -284,63 +356,96 @@ initializeAppCheck(app, {
         }
         return value;
     };
-
     console.log("🔒 Tamper protection activated");
 })();
 
-// ⚡ Fast localStorage pre-check (runs before Firebase resolves)
+// ⚡ Fast localStorage pre-check
 (function earlyGuard() {
     const userEmail = localStorage.getItem("userEmail");
-    if (!userEmail) {
-        window.location.href = "index.html";
-    }
+    if (!userEmail) { window.location.href = "index.html"; }
 })();
 
-// 🏆 BEST SCORE — load from Firestore on auth ready, then expose save function
+// 🏆 BEST SCORE
 window.footballBestScore = 0;
+window.currentUserUid    = null;
+window.currentUserEmail  = null;
 
 async function loadBestScore(uid) {
     try {
-        const ref = doc(db, "footballScores", uid);
-        const snap = await getDoc(ref);
+        const snap = await getDoc(doc(db, "footballScores", uid));
         if (snap.exists()) {
             const best = snap.data().bestScore || 0;
             window.footballBestScore = best;
             const el = document.getElementById('bestScore');
             if (el) el.textContent = best;
         }
-    } catch (e) {
-        console.warn("Could not load best score:", e);
-    }
+    } catch(e) { console.warn("Could not load best score:", e); }
 }
 
-async function saveBestScore(uid, newScore) {
+window.saveBestScoreForUser = async function(score) {
+    const uid   = window.currentUserUid;
+    const email = window.currentUserEmail;
+    if (!uid || !email) return false;
     try {
-        const ref = doc(db, "footballScores", uid);
+        const ref  = doc(db, "footballScores", uid);
         const snap = await getDoc(ref);
-        if (!snap.exists() || newScore > (snap.data().bestScore || 0)) {
-            await setDoc(ref, { bestScore: newScore, updatedAt: new Date().toISOString() }, { merge: true });
-            window.footballBestScore = newScore;
-            return true; // is new best
+        if (!snap.exists() || score > (snap.data().bestScore || 0)) {
+            await setDoc(ref, {
+                bestScore: score,
+                email: email,
+                updatedAt: new Date().toISOString()
+            }, { merge: true });
+            window.footballBestScore = score;
+            return true;
         }
         return false;
-    } catch (e) {
-        console.warn("Could not save best score:", e);
-        return false;
-    }
-}
-
-// Expose so the game script can call it
-window.saveBestScoreForUser = async function(score) {
-    const user = auth.currentUser;
-    if (!user) return false;
-    return await saveBestScore(user.uid, score);
+    } catch(e) { console.warn("Could not save best score:", e); return false; }
 };
 
-// 🔐 LOGIN REQUIRED — kick out logged-out users, load best score when confirmed logged in
+// 🏅 LEADERBOARD
+window.loadLeaderboard = async function() {
+    const lbList = document.getElementById('lbList');
+    lbList.innerHTML = '<div class="lb-loading">Loading...</div>';
+    try {
+        const q = query(
+            collection(db, "footballScores"),
+            orderBy("bestScore", "desc"),
+            limit(10)
+        );
+        const snap = await getDocs(q);
+        if (snap.empty) {
+            lbList.innerHTML = '<div class="lb-empty">No scores yet — be the first!</div>';
+            return;
+        }
+        const myUid = window.currentUserUid;
+        let html = '';
+        let rank = 0;
+        snap.forEach(d => {
+            rank++;
+            const data  = d.data();
+            const isMe  = d.id === myUid;
+            const name  = data.email ? data.email.split('@')[0] : '???';
+            const score = data.bestScore || 0;
+            const rankLabel = rank === 1 ? '<span class="lb-rank gold">🥇</span>'
+                            : rank === 2 ? '<span class="lb-rank silver">🥈</span>'
+                            : rank === 3 ? '<span class="lb-rank bronze">🥉</span>'
+                            : `<span class="lb-rank">${rank}</span>`;
+            html += `<div class="lb-row${isMe ? ' me' : ''}">
+                ${rankLabel}
+                <span class="lb-name">${name}${isMe ? ' <span style="opacity:.5;font-size:11px;">(you)</span>' : ''}</span>
+                <span class="lb-score">${score}</span>
+            </div>`;
+        });
+        lbList.innerHTML = html;
+    } catch(e) {
+        console.warn("Leaderboard error:", e);
+        lbList.innerHTML = '<div class="lb-empty">Could not load leaderboard.</div>';
+    }
+};
+
+// 🔐 AUTH STATE
 auth.onAuthStateChanged((user) => {
     const userEmail = localStorage.getItem("userEmail");
-
     if (!user && !userEmail) {
         window.location.href = "index.html";
     } else if (user && !user.emailVerified) {
@@ -350,6 +455,8 @@ auth.onAuthStateChanged((user) => {
             window.location.href = "index.html";
         });
     } else if (user && user.emailVerified) {
+        window.currentUserUid   = user.uid;
+        window.currentUserEmail = user.email;
         loadBestScore(user.uid);
     }
 });
@@ -479,21 +586,20 @@ async function endGame(){
   if (typeof window.saveBestScoreForUser === 'function') {
     isNewBest = await window.saveBestScoreForUser(score);
   }
-
   const currentBest = window.footballBestScore || 0;
 
   setTimeout(()=>{
-    finalScore.textContent=score;
+    finalScore.textContent = score;
 
-    // Update HUD best score
+    // Update HUD best
     const hudBest = document.getElementById('bestScore');
     if (hudBest) hudBest.textContent = currentBest;
 
-    // Update end screen best score line
+    // End screen best line
     const bestLine = document.getElementById('bestScoreLine');
     if (bestLine) bestLine.textContent = '🏆 Best: ' + currentBest;
 
-    // Show ⭐ NEW BEST! badge if this game broke the record
+    // New best badge
     const badge = document.getElementById('newBestBadge');
     if (badge) badge.style.display = isNewBest ? 'block' : 'none';
 
@@ -615,6 +721,28 @@ restartBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('touchend', e=>{e.preventDefault();startGame();});
 playBtn.addEventListener('click', startGame);
 playBtn.addEventListener('touchend', e=>{e.preventDefault();startGame();});
+
+// 🏅 Leaderboard button
+const leaderboardBtn    = document.getElementById('leaderboardBtn');
+const leaderboardOverlay = document.getElementById('leaderboardOverlay');
+const lbCloseBtn        = document.getElementById('lbCloseBtn');
+
+function openLeaderboard() {
+  leaderboardOverlay.classList.add('open');
+  if (typeof window.loadLeaderboard === 'function') window.loadLeaderboard();
+}
+function closeLeaderboard() {
+  leaderboardOverlay.classList.remove('open');
+}
+
+leaderboardBtn.addEventListener('click', openLeaderboard);
+leaderboardBtn.addEventListener('touchend', e=>{e.preventDefault();openLeaderboard();});
+lbCloseBtn.addEventListener('click', closeLeaderboard);
+lbCloseBtn.addEventListener('touchend', e=>{e.preventDefault();closeLeaderboard();});
+// Close on overlay background tap
+leaderboardOverlay.addEventListener('click', e=>{
+  if(e.target === leaderboardOverlay) closeLeaderboard();
+});
 
 // Init keeper position but don't start — wait for Play
 positionKeeper();
