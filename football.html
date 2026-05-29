@@ -332,7 +332,7 @@ body{overflow:hidden;font-family:'Poppins',sans-serif;background:#111;}
   <div id="message"></div>
 
   <!-- Start / Game Over Overlay -->
-  <div id="gameOver">
+  <div id="gameOver" class="visible">
     <div id="gameOverCard">
       <!-- Start screen -->
       <div id="startScreen">
@@ -452,6 +452,8 @@ async function checkDisplayName(uid) {
     try {
         const ref  = doc(db, "footballScores", uid);
         const snap = await getDoc(ref);
+        // Auth is confirmed — safe to remove splash now
+        window.removeSplash();
         if (snap.exists() && snap.data().displayName) {
             // Already has a name — show game directly
             window.currentDisplayName = snap.data().displayName;
@@ -459,12 +461,13 @@ async function checkDisplayName(uid) {
             document.getElementById('gameOver').classList.add('visible');
             return true;
         } else {
-            // No name yet — show name prompt first, game revealed after
+            // No name yet — show name prompt first
             showNamePrompt(uid);
             return false;
         }
     } catch(e) {
         console.warn("Could not check display name:", e);
+        window.removeSplash();
         showNamePrompt(uid);
         return false;
     }
@@ -477,6 +480,10 @@ function showNamePrompt(uid) {
     const errorEl   = document.getElementById('namePromptError');
 
     overlay.classList.add('open');
+
+    // Hide the game start screen until name is saved
+    const gameOver = document.getElementById('gameOver');
+    if (gameOver) gameOver.classList.remove('visible');
 
     function validateName(val) {
         if (!val || val.trim().length < 2) return 'Name must be at least 2 characters.';
@@ -501,8 +508,9 @@ function showNamePrompt(uid) {
             console.log("✅ Display name saved:", val);
 
             overlay.classList.remove('open');
-            // Reveal game now that name is set
-            document.getElementById('gameOver').classList.add('visible');
+            // Now show the game
+            const gameOver = document.getElementById('gameOver');
+            if (gameOver) gameOver.classList.add('visible');
         } catch(e) {
             console.warn("Could not save display name:", e);
             errorEl.textContent = 'Could not save — please try again.';
@@ -901,14 +909,22 @@ positionKeeper();
 setIdlePose();
 </script>
 <script>
+// Splash is removed by auth flow, not by load event
+// This prevents the game from flickering before auth resolves
 window.addEventListener("load", function () {
+    // Just keep splash visible — auth will remove it once ready
+    console.log("⚽ Page loaded — waiting for auth...");
+});
+
+window.removeSplash = function() {
     const splash = document.getElementById("splash-screen");
+    if (!splash) return;
     splash.classList.add("fade-out");
     setTimeout(() => {
         splash.remove();
         document.body.classList.add("splash-done");
     }, 500);
-});
+};
 </script>
 
 </body>
