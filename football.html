@@ -332,7 +332,7 @@ body{overflow:hidden;font-family:'Poppins',sans-serif;background:#111;}
   <div id="message"></div>
 
   <!-- Start / Game Over Overlay -->
-  <div id="gameOver" class="visible">
+  <div id="gameOver">
     <div id="gameOverCard">
       <!-- Start screen -->
       <div id="startScreen">
@@ -453,12 +453,13 @@ async function checkDisplayName(uid) {
         const ref  = doc(db, "footballScores", uid);
         const snap = await getDoc(ref);
         if (snap.exists() && snap.data().displayName) {
-            // Already has a name — store it and proceed
+            // Already has a name — show game directly
             window.currentDisplayName = snap.data().displayName;
             console.log("✅ Display name loaded:", window.currentDisplayName);
+            document.getElementById('gameOver').classList.add('visible');
             return true;
         } else {
-            // No name yet — show prompt, block play until saved
+            // No name yet — show name prompt first, game revealed after
             showNamePrompt(uid);
             return false;
         }
@@ -476,10 +477,6 @@ function showNamePrompt(uid) {
     const errorEl   = document.getElementById('namePromptError');
 
     overlay.classList.add('open');
-
-    // Hide the game start screen until name is saved
-    const gameOver = document.getElementById('gameOver');
-    if (gameOver) gameOver.classList.remove('visible');
 
     function validateName(val) {
         if (!val || val.trim().length < 2) return 'Name must be at least 2 characters.';
@@ -504,9 +501,8 @@ function showNamePrompt(uid) {
             console.log("✅ Display name saved:", val);
 
             overlay.classList.remove('open');
-            // Now show the game
-            const gameOver = document.getElementById('gameOver');
-            if (gameOver) gameOver.classList.add('visible');
+            // Reveal game now that name is set
+            document.getElementById('gameOver').classList.add('visible');
         } catch(e) {
             console.warn("Could not save display name:", e);
             errorEl.textContent = 'Could not save — please try again.';
