@@ -885,7 +885,7 @@ async function deleteUserAndFirestore(user) {
             });
         });
 
-// Wikipedia API integration - only player name mappings
+// Wikipedia API integration - player name mappings
 const playerWikipediaMap = {
     'Messi': 'Lionel_Messi',
     'Ronaldo': 'Cristiano_Ronaldo',
@@ -963,20 +963,27 @@ function extractBornFromText(text) {
 
     if (!text) return { birthInfo, age };
 
+    // Enhanced date patterns to catch more formats including "born 5th February 1985"
     const datePatterns = [
+        /born\s+(\d{1,2}(?:st|nd|rd|th)?\s+\w+\s+\d{4})/i,
+        /born\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
+        /born\s+(\d{4}-\d{1,2}-\d{1,2})/i,
+        /born on\s+(\d{1,2}(?:st|nd|rd|th)?\s+\w+\s+\d{4})/i,
+        /\(born\s+(\d{1,2}(?:st|nd|rd|th)?\s+\w+\s+\d{4})/i,
+        /\(born\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
         /born[^0-9]{0,10}(\d{1,2}\s+\w+\s+\d{4})/i,
         /born[^0-9]{0,10}(\w+\s+\d{1,2},\s+\d{4})/i,
-        /born[^0-9]{0,10}(\d{4}-\d{1,2}-\d{1,2})/i,
-        /born on[^0-9]{0,10}(\d{1,2}\s+\w+\s+\d{4})/i,
-        /\(born\s+(\d{1,2}\s+\w+\s+\d{4})/i,
-        /\(born\s+(\w+\s+\d{1,2},\s+\d{4})/i,
-        /born[^0-9]+(19|20)\d{2}/i
+        /(\d{1,2}\s+\w+\s+\d{4})/i,
+        /(\w+\s+\d{1,2},?\s+\d{4})/i
     ];
 
     for (const pattern of datePatterns) {
         const match = text.match(pattern);
-        if (match) {
-            birthInfo = match[1] || match[0];
+        if (match && match[1]) {
+            let dateStr = match[1];
+            // Clean up ordinal indicators (5th -> 5)
+            dateStr = dateStr.replace(/(\d+)(?:st|nd|rd|th)/i, '$1');
+            birthInfo = dateStr;
             break;
         }
     }
@@ -989,40 +996,60 @@ function extractBornFromText(text) {
     return { birthInfo, age };
 }
 
-
 function calculateAgeFromText(birthText) {
-    // Extract full date (day + month + year)
-    const fullDateMatch = birthText.match(/(\d{1,2}\s+\w+\s+\d{4})|(\w+\s+\d{1,2},\s+\d{4})|(\d{4}-\d{1,2}-\d{1,2})/);
-
-    if (!fullDateMatch) return ""; // Can't calculate properly
-
-    let birthDateStr = fullDateMatch[0];
-    let birthDate;
-
-    // Try parsing multiple formats
-    if (birthDateStr.includes("-")) {
-        // YYYY-MM-DD
-        birthDate = new Date(birthDateStr);
-    } else {
-        // Formats like "24 June 1987" or "June 24, 1987"
-        birthDate = new Date(Date.parse(birthDateStr));
+    let birthDate = null;
+    
+    // Clean the birth text first
+    let cleanText = birthText.trim();
+    
+    // Try parsing with Date.parse for various formats
+    const testDate = new Date(Date.parse(cleanText));
+    if (!isNaN(testDate)) {
+        birthDate = testDate;
+    }
+    
+    // If that failed, try manual parsing for "DD Month YYYY" format
+    if (!birthDate || isNaN(birthDate)) {
+        const parts = cleanText.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+        if (parts) {
+            const months = {
+                'january': 0, 'february': 1, 'march': 2, 'april': 3, 'may': 4, 'june': 5,
+                'july': 6, 'august': 7, 'september': 8, 'october': 9, 'november': 10, 'december': 11
+            };
+            const monthName = parts[2].toLowerCase();
+            if (months[monthName] !== undefined) {
+                birthDate = new Date(parseInt(parts[3]), months[monthName], parseInt(parts[1]));
+            }
+        }
+    }
+    
+    // If still failed, try "Month DD, YYYY" format
+    if (!birthDate || isNaN(birthDate)) {
+        const parts = cleanText.match(/([A-Za-z]+)\s+(\d{1,2}),?\s+(\d{4})/);
+        if (parts) {
+            const months = {
+                'january': 0, 'february': 1, 'march': 2, 'april': 3, 'may': 4, 'june': 5,
+                'july': 6, 'august': 7, 'september': 8, 'october': 9, 'november': 10, 'december': 11
+            };
+            const monthName = parts[1].toLowerCase();
+            if (months[monthName] !== undefined) {
+                birthDate = new Date(parseInt(parts[3]), months[monthName], parseInt(parts[2]));
+            }
+        }
     }
 
-    if (isNaN(birthDate)) return "";
+    if (!birthDate || isNaN(birthDate.getTime())) return "";
 
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
-
-    // Check if birthday has NOT occurred yet this year
     const thisYearsBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
 
     if (today < thisYearsBirthday) {
-        age--; // Birthday not yet reached
+        age--;
     }
 
     return age.toString();
 }
-
 
 // Function to extract first 3 complete sentences
 function getFirstThreeSentences(text) {
@@ -1103,29 +1130,31 @@ document.addEventListener('DOMContentLoaded', function() {
         
         tabPanes.forEach(tabPane => {
             const tabButton = document.querySelector(`[data-bs-target="#${tabPane.id}"]`);
-            const playerName = tabButton.textContent.trim();
-            
-            // Update when tab is shown
-            tabButton.addEventListener('shown.bs.tab', function() {
-                // Only load if not already loaded
-                if (!tabPane.querySelector('.wiki-update') && !tabPane.querySelector('.wiki-loading')) {
-                    updatePlayerProfile(tabPane, playerName);
-                }
-            });
+            if (tabButton) {
+                const playerName = tabButton.textContent.trim();
+                
+                // Update when tab is shown
+                tabButton.addEventListener('shown.bs.tab', function() {
+                    // Only load if not already loaded
+                    if (!tabPane.querySelector('.wiki-update') && !tabPane.querySelector('.wiki-loading')) {
+                        updatePlayerProfile(tabPane, playerName);
+                    }
+                });
+            }
         });
         
         // Update first tab on page load
         const firstTab = document.querySelector('.tab-pane.active');
-        const firstPlayer = document.querySelector('.nav-link.active').textContent.trim();
-        if (firstTab && !firstTab.querySelector('.wiki-update')) {
-            updatePlayerProfile(firstTab, firstPlayer);
+        const firstPlayer = document.querySelector('.nav-link.active');
+        if (firstTab && firstPlayer && !firstTab.querySelector('.wiki-update')) {
+            updatePlayerProfile(firstTab, firstPlayer.textContent.trim());
         }
     }, 100);
 });
 
-// Add CSS styles
-const style = document.createElement('style');
-style.textContent = `
+// Add CSS styles for Wikipedia info
+const wikiStyle = document.createElement('style');
+wikiStyle.textContent = `
     .wiki-update {
         margin-top: 10px;
         padding: 10px;
@@ -1153,7 +1182,7 @@ style.textContent = `
         border-radius: 5px;
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(wikiStyle);
 
         // Periodic check for email verification
 function checkEmailVerifiedPeriodically() {
