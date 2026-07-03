@@ -2327,6 +2327,9 @@ $("#voting").submit(async function(event){
     document.querySelectorAll('.profile-card').forEach(function(element) {
     let isTouched = false; // Track touch state for each element
     element.addEventListener('touchstart', function(event) {
+        if (event.target.closest('a, button, input, textarea, select, label')) {
+            return;
+        }
         event.preventDefault(); // Prevents accidental double triggers
         if (!isTouched) {
             this.classList.add('touched');
