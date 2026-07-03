@@ -2119,7 +2119,6 @@ document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll('#login-card').forEach(function(element) {
     let isTouched = false; // Track touch state for each element
     element.addEventListener('touchstart', function(event) {
-      // Let taps on inputs, buttons, and links behave normally
       if (event.target.closest('a, button, input, textarea, select, label')) {
         return;
       }
@@ -2325,14 +2324,10 @@ $("#voting").submit(async function(event){
      </div>
      </div>
      <script>
-document.querySelectorAll('.profile-card').forEach(function(element) {
-    let isTouched = false;
+    document.querySelectorAll('.profile-card').forEach(function(element) {
+    let isTouched = false; // Track touch state for each element
     element.addEventListener('touchstart', function(event) {
-        // If the tap is on a link (or something inside one), let it behave normally
-        if (event.target.closest('a')) {
-            return;
-        }
-        event.preventDefault();
+        event.preventDefault(); // Prevents accidental double triggers
         if (!isTouched) {
             this.classList.add('touched');
             isTouched = true;
@@ -2341,7 +2336,7 @@ document.querySelectorAll('.profile-card').forEach(function(element) {
             isTouched = false;
         }
     });
-});
+}); 
      </script> 
     <style>
     /* Add to your existing CSS */
@@ -2622,6 +2617,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const loginCard = document.querySelector('#login-card');
     loginCard?.addEventListener('touchstart', function(event) {
+        if (event.target.closest('a, button, input, textarea, select, label')) {
+            return;
+        }
         event.preventDefault();
         this.classList.toggle('touched');
     });
