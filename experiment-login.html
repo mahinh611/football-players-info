@@ -65,8 +65,11 @@ function __maybeHideSplash() {
         const splash = document.getElementById("splash-screen");
         if (splash) {
             splash.classList.add("fade-out");
+            // Don't remove() the node — that yanks the still-live Turnstile
+            // iframe out of the DOM mid-flight and breaks its postMessage
+            // channel. Just hide it after the fade finishes.
             setTimeout(() => {
-                splash.remove();
+                splash.style.display = "none";
                 document.body.classList.add("splash-done");
             }, 500);
         }
@@ -75,8 +78,21 @@ function __maybeHideSplash() {
 
 function onSuccess(token) {
     window.__turnstileSolved = true;
+
+    // Cleanly tear down the widget instead of just hiding its container,
+    // so it doesn't leave an orphaned iframe behind.
+    try {
+        if (window.turnstile) {
+            const widgetEl = document.querySelector('#turnstile-box .cf-turnstile');
+            if (widgetEl) window.turnstile.remove(widgetEl);
+        }
+    } catch (e) {
+        console.warn('Turnstile cleanup failed:', e);
+    }
+
     const box = document.getElementById('turnstile-box');
     if (box) box.style.display = 'none';
+
     __maybeHideSplash();
     // token is the Turnstile response — verify it server-side if/when you add that step
 }
