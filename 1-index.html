@@ -54,6 +54,14 @@ if (window.top !== window.self) {
   </head>
  <body>
 
+<div 
+	class="cf-turnstile" 
+	data-sitekey="0x4AAAAAAEdl4V8hUX0FW16O" 
+	data-theme="dark" 
+	data-size="normal" 
+	data-callback="onSuccess" 
+></div>
+
 <style>
 #splash-screen {
     position: fixed;
@@ -245,7 +253,7 @@ if (window.top !== window.self) {
 <script src="firebase-config.js"></script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
+import { initializeAppCheck} from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, deleteUser, signOut } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
 import { getFirestore, doc, deleteDoc, collection, addDoc, onSnapshot, query,setDoc,updateDoc,getDocs,where, getDoc } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
 
@@ -254,10 +262,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 const db = getFirestore(app);
-        initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('6LdpeVYqAAAAAA2i5yEtBFiVV3cBS9WCAin8LK3w'),
-  isTokenAutoRefreshEnabled: true
-});
 
 // Update the global Firebase functions
 window.firebaseApp = {

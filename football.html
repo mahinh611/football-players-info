@@ -291,6 +291,15 @@ body{overflow:hidden;font-family:'Poppins',sans-serif;background:#111;}
 </style>
 </head>
 <body>
+
+<div 
+	class="cf-turnstile" 
+	data-sitekey="0x4AAAAAAEdl4V8hUX0FW16O" 
+	data-theme="dark" 
+	data-size="normal" 
+	data-callback="onSuccess" 
+></div>
+
 <div id="splash-screen">
     <div class="loader"></div>
     <h2>Loading 17 Legends...</h2>
@@ -391,18 +400,13 @@ body{overflow:hidden;font-family:'Poppins',sans-serif;background:#111;}
 <script src="firebase-config.js"></script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
+import { initializeAppCheck} from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-check.js';
 import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
-
-initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('6LdpeVYqAAAAAA2i5yEtBFiVV3cBS9WCAin8LK3w'),
-  isTokenAutoRefreshEnabled: true
-});
 
 // 🔒 TAMPER PROTECTION
 (function() {
