@@ -54,14 +54,28 @@ if (window.top !== window.self) {
   </head>
   <body>
   
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>    
-<div 
-	class="cf-turnstile" 
-	data-sitekey="0x4AAAAAAEdl4V8hUX0FW16O" 
-	data-theme="dark" 
-	data-size="normal" 
-	data-callback="onSuccess" 
-></div>    
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<div id="turnstile-gate" style="position:fixed;inset:0;z-index:1000000;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+    <p style="color:#fff;font-family:sans-serif;font-size:1rem;">Verifying you're human...</p>
+    <div
+        class="cf-turnstile"
+        data-sitekey="0x4AAAAAAEdl4V8hUX0FW16O"
+        data-theme="dark"
+        data-size="normal"
+        data-callback="onSuccess"
+    ></div>
+</div>
+<script>
+function onSuccess(token) {
+    const gate = document.getElementById('turnstile-gate');
+    if (gate) {
+        gate.style.transition = 'opacity 0.4s ease';
+        gate.style.opacity = '0';
+        setTimeout(() => gate.remove(), 400);
+    }
+    // token is the Turnstile response — verify it server-side if/when you add that step
+}
+</script>    
 
 <style>
 #splash-screen {
