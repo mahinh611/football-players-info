@@ -788,7 +788,7 @@ async function autoCheckEmailVerification() {
 }
             </style>
        <div class="animated-text">
-         <p>Hello World!<br><br><br>This is my first website I made. I started compiling these site from 2 November 2023 as a hobby , from bare minimum site to now something different and unique. Time flies like flash. Its kind of fun compiling these site , but as usual more features = more bugs. I had to gone through fixing a ton lot of stuffs in order to add features and still I am fixing stuffs for these site in order to add new features to the site as I kind of love compiling site. I always believe in " Life without happiness is like useless to live. So, try to enjoy your life. "<br><br>Talking about the website , its a site where 17 players info's are available , in this site you can compare against other players available in this site. This site features unique designs which are not so much common in other websites; also it features login and signup through verified email and pass , google by the help of firebase ; for logged in users this site features no ads for them, ability to vote for the players among the listed 17 players in this site and able to play a football game but for non logged in users this site features ads for them. Users can verify the email, delete, create their account, change the password, submit and update vote thanks to firebase. It also features user info for the logged in user and features live chart voting result. This site uses bootstrap, jquery, fontawesome, firebase, google fonts, javascript, css, chart js, wikipedia api, recaptcha.<br><br>As a newbie in web development, I am still trying my level best in order to add new features to the site. I hope you guys are enjoying it.</p>
+         <p>Hello World!<br><br><br>This is my first website I made. I started compiling these site from 2 November 2023 as a hobby , from bare minimum site to now something different and unique. Time flies like flash. Its kind of fun compiling these site , but as usual more features = more bugs. I had to gone through fixing a ton lot of stuffs in order to add features and still I am fixing stuffs for these site in order to add new features to the site as I kind of love compiling site. I always believe in " Life without happiness is like useless to live. So, try to enjoy your life. "<br><br>Talking about the website , its a site where 17 players info's are available , in this site you can compare against other players available in this site. This site features unique designs which are not so much common in other websites; also it features login and signup through verified email and pass , google by the help of firebase ; for logged in users this site features no ads for them, ability to vote for the players among the listed 17 players in this site and able to play a football game but for non logged in users this site features ads for them. Users can verify the email, delete, create their account, change the password, submit and update vote thanks to firebase. It also features user info for the logged in user and features live chart voting result. This site uses bootstrap, jquery, fontawesome, firebase, google fonts, javascript, css, chart js, wikipedia api, cloudflare turnstile, google search console, cloudflare pages.<br><br>As a newbie in web development, I am still trying my level best in order to add new features to the site. I hope you guys are enjoying it.</p>
        </div>
        <script>
         document.querySelector('.animated-text p').addEventListener('touchstart', function() {
@@ -846,7 +846,7 @@ document.querySelector('.animated-text p').addEventListener('touchstart', functi
                           <div class="accordion-item">
                               <h2 class="accordion-header">
                                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="background-color: #FF474C;">
-                                    5.X.XX/XX/202X or higher
+                                    5.X.XX/XX/202X-P.EOL or higher
                                   </button>
                               </h2>
                               <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample1">
@@ -855,7 +855,7 @@ document.querySelector('.animated-text p').addEventListener('touchstart', functi
                                           <div class="card-body">
                                               <p class="card-text">
                                                   <ol>
-                                                      <p style="color: #03fe31;">( ETA July 2026 to September 2026 or later )</p>
+                                                      <p style="color: #03fe31;">( ETA September 2026 to October 2026 or later )</p>
                                                       <li style="color: #000dff;">Will try to make "User info" more informational.</li>
                                                       <li style="color: #000dff;">Will try to revamp design and stuffs for the site.</li>
                                                       <li style="color: #f90000;">Up to date all players info.</li>
@@ -886,7 +886,7 @@ document.querySelector('.animated-text p').addEventListener('touchstart', functi
                           <div class="accordion-item">
                               <h2 class="accordion-header">
                                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" style="background-color: #00a740;">
-                                    5.1.27/8/24
+                                    5.1.1.27/8/24-P.EOL
                                   </button>
                               </h2>
                               <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample2">
@@ -897,12 +897,11 @@ document.querySelector('.animated-text p').addEventListener('touchstart', functi
                                                   <ol>
                                                     <li style="color: #fff;">Some adding and removing code lines.</li>
                                                     <li style="color: #fff;">Overall code improvements.</li>
-                                                    <li style="color: #fff;">Added top 10 leaderboard for football.html.</li>
-                                                    <li style="color: #fff;">Made overall security of the site bit stricter by adding earlyguard javascript.</li> 
-                                                    <li style="color: #fff;">Made changes to firebase rule for football.html.</li>
-                                                    <li style="color: #fff;">Site migrated from github pages to cloudflare pages as i was facing issues in deploying.</li>
-                                                    <li style="color: #fff;">Added our site to google search console so that it reaches to more users.</li>
-                                                    <li style="color: #fff;">Added sitemap.xml which was created from xml-sitemaps.com.</li>
+                                                    <li style="color: #fff;">Removed recaptcha as it was causing issues and was not working as intended.</li>
+                                                    <li style="color: #fff;">Added cloudflare turnstile to the site for overall security improvement.</li> 
+                                                    <li style="color: #fff;">Added non-interactive cloudflare turnstile to the splash screens.</li>
+                                                    <li style="color: #fff;">Fixed signin, signup, and password reset functionality.</li>
+                                                    <li style="color: #fff;">Fixed issue of not being able to submit votes and see voting results.</li>
                                                 </ol>
                                               </p>
                                               <div class="card-footer" style="background-color: rgba(0, 0, 0, 0);">
@@ -970,7 +969,7 @@ footer {
     </style>    
 <footer class="text-center footer-animation">
 <div class="container">
-<p class="mb-0">This site is solely written and maintained by Mahin Haque.<br>This site was last updated at 27 August 2026.<br>Website version: 5.1.27/8/24</p>
+<p class="mb-0">This site is solely written and maintained by Mahin Haque.<br>This site was last updated at 27 August 2026.<br>Website version: 5.1.1.27/8/24-P.EOLS</p>
 </div>
 </footer>
   <script>
