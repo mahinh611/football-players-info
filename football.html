@@ -296,6 +296,7 @@ body{overflow:hidden;font-family:'Poppins',sans-serif;background:#111;}
 <script>
 window.__siteLoaded = false;
 window.__turnstileSolved = false;
+window.__turnstileVerified = false; // true only after server-side check passes
 
 function __maybeHideSplash() {
     if (window.__siteLoaded && window.__turnstileSolved) {
@@ -313,8 +314,36 @@ function __maybeHideSplash() {
     }
 }
 
-function onSuccess(token) {
+async function onSuccess(token) {
     window.__turnstileSolved = true;
+
+    // Verify the token server-side right away (tokens are single-use, so we
+    // check once here rather than re-checking later at signup/login time).
+    try {
+        const res = await fetch('/api/verify-turnstile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token })
+        });
+        const result = await res.json();
+        window.__turnstileVerified = !!result.success;
+    } catch (e) {
+        console.warn('Turnstile server verification failed:', e);
+        window.__turnstileVerified = false;
+    }
+
+    if (!window.__turnstileVerified) {
+        // Let the visitor retry instead of silently locking them out.
+        const p = document.querySelector('#turnstile-box p');
+        if (p) p.textContent = "Verification failed — please try again.";
+        if (window.turnstile) {
+            try {
+                const widgetEl = document.querySelector('#turnstile-box .cf-turnstile');
+                if (widgetEl) window.turnstile.reset(widgetEl);
+            } catch (e) {}
+        }
+        return;
+    }
 
     // Cleanly tear down the widget instead of just hiding its container,
     // so it doesn't leave an orphaned iframe behind.
@@ -331,7 +360,6 @@ function onSuccess(token) {
     if (box) box.style.display = 'none';
 
     __maybeHideSplash();
-    // token is the Turnstile response — verify it server-side if/when you add that step
 }
 </script>
 
