@@ -7,6 +7,7 @@ const distDir = './dist';
 
 // Folders/files to copy as-is (no minification)
 const assetFolders = [
+  '.well-known',
   'blog-css',
   'experiment-css',
   'experiment-images',
