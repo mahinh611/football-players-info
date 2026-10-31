@@ -32,13 +32,12 @@ export async function onRequest(context) {
   newResponse.headers.set("Cache-Control", "private, no-store");
 
   // 6. Use HTMLRewriter to inject the nonce into all <script> tags
-  return new HTMLRewriter()
-    .on("script", {
-      element(el) {
-        if (!el.hasAttribute("src")) {
-          el.setAttribute("nonce", nonce);
-        }
-      }
-    })
-    .transform(newResponse);
+return new HTMLRewriter()
+  .on("script", {
+    element(el) {
+      // Add the nonce to EVERY script tag (inline and external)
+      el.setAttribute("nonce", nonce);
+    }
+  })
+  .transform(newResponse);
 }
