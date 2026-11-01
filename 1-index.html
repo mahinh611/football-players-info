@@ -842,7 +842,7 @@ document.querySelector('.animated-text p').addEventListener('touchstart', functi
                                           <div class="card-body">
                                               <p class="card-text">
                                                   <ol>
-                                                      <p style="color: #03fe31;">( ETA September 2026 to October 2026 or later )</p>
+                                                      <p style="color: #03fe31;">( ETA November 2026 to January 2027 or later )</p>
                                                       <li style="color: #000dff;">Will try to make "User info" more informational.</li>
                                                       <li style="color: #000dff;">Will try to revamp design and stuffs for the site.</li>
                                                       <li style="color: #f90000;">Up to date all players info.</li>
@@ -873,7 +873,7 @@ document.querySelector('.animated-text p').addEventListener('touchstart', functi
                           <div class="accordion-item">
                               <h2 class="accordion-header">
                                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" style="background-color: #00a740;">
-                                    5.2.27/8/24-P.EOL
+                                    5.3.27/8/24-P.EOL
                                   </button>
                               </h2>
                               <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample2">
@@ -884,16 +884,18 @@ document.querySelector('.animated-text p').addEventListener('touchstart', functi
                                                   <ol>
                                                     <li style="color: #fff;">Some adding and removing code lines.</li>
                                                     <li style="color: #fff;">Overall code improvements.</li>
-                                                    <li style="color: #fff;">Removed recaptcha as it was causing issues and was not working as intended.</li>
-                                                    <li style="color: #fff;">Added cloudflare turnstile to the site for overall security improvement.</li> 
-                                                    <li style="color: #fff;">Added non-interactive cloudflare turnstile to the splash screens.</li>
-                                                    <li style="color: #fff;">Fixed signin, signup, and password reset functionality.</li>
-                                                    <li style="color: #fff;">Fixed issue of not being able to submit votes and see voting results.</li>
-                                                    <li style="color: #fff;">Added minified build process for the site so that "view page source" appears in one line.</li>
+                                                    <li style="color: #fff;">Replaced the old CSP with a strict nonce-based Content Security Policy for real XSS protection.</li>
+                                                    <li style="color: #fff;">Moved the CSP to an HTTP header served by a Cloudflare Pages Function so nonces and 'strict-dynamic' work properly.</li> 
+                                                    <li style="color: #fff;">Added frame-ancestors 'none' to block clickjacking.</li>
+                                                    <li style="color: #fff;">Hardened Firestore rules so only verified-email users can write, and only to their own documents.</li>
+                                                    <li style="color: #fff;">Enforced the 17-player whitelist and one-vote-per-user directly in Firestore rules.</li>
+                                                    <li style="color: #fff;">Capped football scores between 0 and 30, and required the first save to be 0.</li>
+                                                    <li style="color: #fff;">Added a catch-all deny rule for any collection not explicitly allowed.</li>
+                                                    <li style="color: #fff;">Replaced unsafe .innerHTML calls with safe DOM methods in the voting alert and leaderboard.</li>
                                                 </ol>
                                               </p>
                                               <div class="card-footer" style="background-color: rgba(0, 0, 0, 0);">
-                                                <small class="text">27/8/26; 31/8/26</small>
+                                                <small class="text">31/10/26 ; 1/11/26</small>
                                             </div>
                                           </div>
                                       </div>
@@ -957,7 +959,7 @@ footer {
     </style>    
 <footer class="text-center footer-animation">
 <div class="container">
-<p class="mb-0">This site is solely written and maintained by Mahin Haque.<br>This site was last updated at 31 August 2026.<br>Website version: 5.2.27/8/24-P.EOL</p>
+<p class="mb-0">This site is solely written and maintained by Mahin Haque.<br>This site was last updated at 1 November 2026.<br>Website version: 5.3.27/8/24-P.EOL</p>
 </div>
 </footer>
   <script>
