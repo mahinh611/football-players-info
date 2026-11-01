@@ -23,7 +23,8 @@ export async function onRequest(context) {
     "frame-src 'self' https:",
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self'"
+    "form-action 'self'",
+    "frame-ancestors 'none'"
   ].join("; ");
 
   // 5. Create a mutable response and set the CSP header
