@@ -691,15 +691,6 @@ setTimeout(() => {
     }
 }, 3000);
 
-// 🔥 NEW: Wait for Firebase to finish loading, then check for the vote
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        // User is confirmed logged in by Firebase. 
-        // Now it is 100% safe to check the database.
-        checkExistingVote();
-    }
-});
-
         document.addEventListener("DOMContentLoaded", function () {
             const navbar = document.querySelector(".navbar");
             const elementsToAnimate = document.querySelectorAll('.slide-left-view');
@@ -787,6 +778,12 @@ async function checkExistingVote() {
                     console.error("Error signing out:", error);
                 });
             });
+            // Wait for Firebase to confirm the user, then auto-fill the vote
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        checkExistingVote();
+    }
+});
     
             // Handle user info button click
             userInfoButton.addEventListener("click", function (event) {
