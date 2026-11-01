@@ -758,12 +758,13 @@ async function checkExistingVote() {
             
             // Update submit button text
             document.getElementById('submitBtn').textContent = 'Update Vote';
-            
+        
             // Show message
-            $("#voting-form").prepend(
-                "<div class='alert alert-info' role='alert'>You've already voted for " + 
-                existingVote.favoritePlayer + ". You can update your vote below.</div>"
-            );
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-info';
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.textContent = "You've already voted for " + existingVote.favoritePlayer + ". You can update your vote below.";
+            document.getElementById('voting-form').prepend(alertDiv);
         }
     } catch (error) {
         console.error("Error checking existing vote:", error);

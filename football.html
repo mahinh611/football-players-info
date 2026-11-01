@@ -624,7 +624,7 @@ window.loadLeaderboard = async function() {
             return;
         }
         const myUid = window.currentUserUid;
-        let html = '';
+        lbList.innerHTML = ''; // clear "Loading..." message
         let rank = 0;
         snap.forEach(d => {
             rank++;
@@ -636,13 +636,43 @@ window.loadLeaderboard = async function() {
                             : rank === 2 ? '<span class="lb-rank silver">🥈</span>'
                             : rank === 3 ? '<span class="lb-rank bronze">🥉</span>'
                             : `<span class="lb-rank">${rank}</span>`;
-            html += `<div class="lb-row${isMe ? ' me' : ''}">
-                ${rankLabel}
-                <span class="lb-name">${name}${isMe ? ' <span style="opacity:.5;font-size:11px;">(you)</span>' : ''}</span>
-                <span class="lb-score">${score}</span>
-            </div>`;
+            // Build the row safely with DOM elements (no innerHTML)
+            const row = document.createElement('div');
+            row.className = 'lb-row' + (isMe ? ' me' : '');
+
+            // Rank (safe - it's either a fixed emoji span or a number)
+            const rankSpan = document.createElement('span');
+            rankSpan.className = rank === 1 ? 'lb-rank gold'
+                             : rank === 2 ? 'lb-rank silver'
+                             : rank === 3 ? 'lb-rank bronze'
+                             : 'lb-rank';
+            rankSpan.textContent = rank === 1 ? '🥇'
+                                 : rank === 2 ? '🥈'
+                                 : rank === 3 ? '🥉'
+                                 : rank;
+            row.appendChild(rankSpan);
+
+            // Name (safe - textContent)
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'lb-name';
+            nameSpan.textContent = name;
+            if (isMe) {
+                const youTag = document.createElement('span');
+                youTag.style.opacity = '0.5';
+                youTag.style.fontSize = '11px';
+                youTag.textContent = ' (you)';
+                nameSpan.appendChild(youTag);
+            }
+            row.appendChild(nameSpan);
+
+            // Score (safe - textContent)
+            const scoreSpan = document.createElement('span');
+            scoreSpan.className = 'lb-score';
+            scoreSpan.textContent = score;
+            row.appendChild(scoreSpan);
+
+            lbList.appendChild(row);
         });
-        lbList.innerHTML = html;
     } catch(e) {
         console.warn("Leaderboard error:", e);
         lbList.innerHTML = '<div class="lb-empty">Could not load leaderboard.</div>';
