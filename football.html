@@ -596,9 +596,14 @@ window.saveBestScoreForUser = async function(score) {
     try {
         const ref  = doc(db, "footballScores", uid);
         const snap = await getDoc(ref);
+        
+        // Save current time as lastPlayedAt
+        const lastPlayedAt = Date.now();
+
         if (!snap.exists() || score > (snap.data().bestScore || 0)) {
             await setDoc(ref, {
                 bestScore: score,
+                lastPlayedAt: lastPlayedAt,
                 updatedAt: new Date().toISOString()
             }, { merge: true });
             window.footballBestScore = score;
