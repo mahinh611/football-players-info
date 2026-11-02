@@ -30,6 +30,7 @@ export async function onRequest(context) {
   // 5. Create a mutable response and set the CSP header
   const newResponse = new Response(response.body, response);
   newResponse.headers.set("Content-Security-Policy", csp);
+  newResponse.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   newResponse.headers.set("Cache-Control", "private, no-store");
 
   // 6. Use HTMLRewriter to inject the nonce into all <script> tags
