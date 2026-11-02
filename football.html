@@ -411,7 +411,7 @@ async function onSuccess(token) {
         <div style="font-size:clamp(11px,1.4vw,14px);opacity:.45;margin-bottom:28px;letter-spacing:.5px;">Swipe up to shoot</div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
           <button id="playBtn">▶ Play</button>
-          <button id="homeBtn" onclick="window.location.href='index.html'" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;font-family:'Poppins',sans-serif;font-size:clamp(13px,1.6vw,17px);font-weight:500;padding:11px 36px;border-radius:50px;cursor:pointer;transition:background 0.2s,transform 0.15s;touch-action:auto;user-select:auto;">🏠 Go to Homepage</button>
+          <button id="homeBtn" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;font-family:'Poppins',sans-serif;font-size:clamp(13px,1.6vw,17px);font-weight:500;padding:11px 36px;border-radius:50px;cursor:pointer;transition:background 0.2s,transform 0.15s;touch-action:auto;user-select:auto;">🏠 Go to Homepage</button>
         </div>
       </div>
       <!-- End screen -->
@@ -425,7 +425,7 @@ async function onSuccess(token) {
         <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:10px;">
           <button id="restartBtn">▶ Play Again</button>
           <button id="leaderboardBtn">🏅 Leaderboard</button>
-          <button onclick="window.location.href='index.html'" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;font-family:'Poppins',sans-serif;font-size:clamp(13px,1.6vw,17px);font-weight:500;padding:11px 36px;border-radius:50px;cursor:pointer;transition:background 0.2s,transform 0.15s;touch-action:auto;user-select:auto;">🏠 Go to Homepage</button>
+          <button class="home-btn-end" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;font-family:'Poppins',sans-serif;font-size:clamp(13px,1.6vw,17px);font-weight:500;padding:11px 36px;border-radius:50px;cursor:pointer;transition:background 0.2s,transform 0.15s;touch-action:auto;user-select:auto;">🏠 Go to Homepage</button>
         </div>
       </div>
     </div>
@@ -1034,24 +1034,27 @@ window.removeSplash = function() {
 };
 </script>
 <script>
-  // Fix for CSP blocking inline onclick on "Go to Homepage" buttons
   document.addEventListener('DOMContentLoaded', function() {
-    // Target all buttons that contain the text "Go to Homepage"
-    const homeButtons = Array.from(document.querySelectorAll('button')).filter(btn => 
-      btn.textContent.includes('Go to Homepage')
-    );
+    // Target the start screen button by ID
+    const homeBtn = document.getElementById('homeBtn');
+    if (homeBtn) {
+      homeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.href = 'index.html';
+      });
+      homeBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        window.location.href = 'index.html';
+      });
+    }
 
-    homeButtons.forEach(btn => {
-      // Remove the inline onclick which is blocked by strict CSP
-      btn.removeAttribute('onclick');
-      
-      // Add a safe event listener that will get the nonce
+    // Target the end screen button by class
+    const homeBtnsEnd = document.querySelectorAll('.home-btn-end');
+    homeBtnsEnd.forEach(btn => {
       btn.addEventListener('click', function(e) {
         e.preventDefault();
         window.location.href = 'index.html';
       });
-      
-      // Also support mobile touch
       btn.addEventListener('touchend', function(e) {
         e.preventDefault();
         window.location.href = 'index.html';
