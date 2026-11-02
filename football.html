@@ -499,6 +499,19 @@ window.currentUserUid     = null;
 window.currentUserEmail   = null;
 window.currentDisplayName = null;
 
+// 🆕 Expose the save function to the window
+window.saveStartTime = async function() {
+    const user = auth.currentUser;
+    if (!user) return;
+    try {
+        const ref = doc(db, "footballScores", user.uid);
+        await setDoc(ref, { lastPlayedAt: Date.now() }, { merge: true });
+        console.log("⏱️ Start time saved to database");
+    } catch (e) {
+        console.warn("Could not save start time:", e);
+    }
+};
+
 async function loadBestScore(uid) {
     try {
         const snap = await getDoc(doc(db, "footballScores", uid));
@@ -597,13 +610,9 @@ window.saveBestScoreForUser = async function(score) {
         const ref  = doc(db, "footballScores", uid);
         const snap = await getDoc(ref);
         
-        // Save current time as lastPlayedAt
-        const lastPlayedAt = Date.now();
-
         if (!snap.exists() || score > (snap.data().bestScore || 0)) {
             await setDoc(ref, {
                 bestScore: score,
-                lastPlayedAt: lastPlayedAt,
                 updatedAt: new Date().toISOString()
             }, { merge: true });
             window.footballBestScore = score;
@@ -894,6 +903,11 @@ function startGame(){
   setIdlePose();
   resetBall();
   startTimer();
+  
+  // NEW: Call the exposed function instead of trying to use setDoc directly
+  if (typeof window.saveStartTime === 'function') {
+      window.saveStartTime();
+  }
 }
 
 function shoot(dx,dy){
