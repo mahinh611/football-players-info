@@ -31,6 +31,7 @@ export async function onRequest(context) {
   const newResponse = new Response(response.body, response);
   newResponse.headers.set("Content-Security-Policy", csp);
   newResponse.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  newResponse.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(self)");
   newResponse.headers.set("Cache-Control", "private, no-store");
 
   // 6. Use HTMLRewriter to inject the nonce into all <script> tags
