@@ -487,18 +487,22 @@ async function onSuccess(token) {
           </div>
           </div>
           <script>
-            var state = false;
-            function toggle() {
-              if (state) {
-                document.getElementById("password").setAttribute("type", "password");
-                document.getElementById("eye").style.color = '#7a797e';
-                state = false;
-              } else {
-                document.getElementById("password").setAttribute("type", "text");
-                document.getElementById("eye").style.color = '#5887ef';
-                state = true;
-              }
-            }
+    document.addEventListener("DOMContentLoaded", function() {
+        const eyeIcon = document.getElementById("eye");
+        const passwordInput = document.getElementById("password");
+
+        if (eyeIcon && passwordInput) {
+            eyeIcon.addEventListener("click", function() {
+                if (passwordInput.type === "password") {
+                    passwordInput.type = "text";
+                    eyeIcon.style.color = '#5887ef';
+                } else {
+                    passwordInput.type = "password";
+                    eyeIcon.style.color = '#7a797e';
+                }
+            });
+        }
+    });
 
           </script>
           <div class="input-group mb-5 d-flex justify-content-between">

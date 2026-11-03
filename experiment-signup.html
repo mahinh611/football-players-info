@@ -501,18 +501,22 @@ async function onSuccess(token) {
             </span>
           </div>
           <script>
-            var state1 = false;
-            function toggle1() {
-              if (state1) {
-                document.getElementById("password1").setAttribute("type", "password");
-                document.getElementById("eye1").style.color = '#7a797e';
-                state1 = false;
-              } else {
-                document.getElementById("password1").setAttribute("type", "text");
-                document.getElementById("eye1").style.color = '#5887ef';
-                state1 = true;
-              }
-            }
+                document.addEventListener("DOMContentLoaded", function() {
+        const eyeIcon = document.getElementById("eye1");
+        const passwordInput = document.getElementById("password1");
+
+        if (eyeIcon && passwordInput) {
+            eyeIcon.addEventListener("click", function() {
+                if (passwordInput.type === "password") {
+                    passwordInput.type = "text";
+                    eyeIcon.style.color = '#5887ef';
+                } else {
+                    passwordInput.type = "password";
+                    eyeIcon.style.color = '#7a797e';
+                }
+            });
+        }
+    });
           </script>
           <div class="input-group mb-3">
             <input type="password" class="form-control form-control-lg bg-light fs-6" placeholder="Confirm Your Password" id="password2">
@@ -521,18 +525,22 @@ async function onSuccess(token) {
             </span>
           </div>
           <script>
-            var state2 = false;
-            function toggle2() {
-              if (state2) {
-                document.getElementById("password2").setAttribute("type", "password");
-                document.getElementById("eye2").style.color = '#7a797e';
-                state2 = false;
-              } else {
-                document.getElementById("password2").setAttribute("type", "text");
-                document.getElementById("eye2").style.color = '#5887ef';
-                state2 = true;
-              }
-            }
+    document.addEventListener("DOMContentLoaded", function() {
+        const eyeIcon = document.getElementById("eye2");
+        const passwordInput = document.getElementById("password2");
+
+        if (eyeIcon && passwordInput) {
+            eyeIcon.addEventListener("click", function() {
+                if (passwordInput.type === "password") {
+                    passwordInput.type = "text";
+                    eyeIcon.style.color = '#5887ef';
+                } else {
+                    passwordInput.type = "password";
+                    eyeIcon.style.color = '#7a797e';
+                }
+            });
+        }
+    });
           </script>
           <div class="input-group mb-5 d-flex justify-content-between">
             By signing up, you are agreeing to our <a target="_blank" href="privacy policy.pdf">privacy policy and terms.</a>
