@@ -1,7 +1,0 @@
-node_modules/
-
-# Original HTML files
-/*.html
-
-# Keep generated website
-!/dist/
