@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://football-players-info.pages.dev/sitemap.xml
