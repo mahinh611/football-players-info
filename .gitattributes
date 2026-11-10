@@ -1,0 +1,7 @@
+# Include dist files in GitHub language statistics
+dist/** linguist-vendored=false
+
+# Include minified files in language statistics
+dist/**/*.html -linguist-generated
+dist/**/*.css -linguist-generated
+dist/**/*.js -linguist-generated
