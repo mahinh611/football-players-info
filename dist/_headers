@@ -1,0 +1,23 @@
+/videos/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/experiment-images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/experiment-slides/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/experiment-css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/experiment-js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/blog-css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
