@@ -1,4 +1,7 @@
 # 17 Legends
-A site featuring profiles, stats, and voting for 17 football legends.
+A site featuring profiles, stats, and voting for 17 football legends. It also contains a football game too.
 - [Home](https://football-players-info.pages.dev/)
 - [About](https://football-players-info.pages.dev/1-index.html)
+- [Login](https://football-players-info.pages.dev/experiment-login.html)
+- [Signup](https://football-players-info.pages.dev/experiment-signup.html)
+- [Game](https://football-players-info.pages.dev/football.html)
